@@ -9,7 +9,7 @@
     --text-light: rgba(255, 255, 255, 0.9);
 }
 
-body {
+.bodyhome {
     background-color: #004d1a;
     color: white;
     text-align: center;
@@ -17,7 +17,7 @@ body {
 .logo {
     position: absolute;
     top: 10px;
-    left: -276px;
+    left: -76px;
     text-align: left;
     padding: 20px;
    
@@ -256,3 +256,213 @@ body {
 }
 
 }
+
+/* sidebar */
+
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    width: 280px;
+    height: 150vh;
+    background-color: #003B1A;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar .logo{
+    width: 200px;
+    height: 96px;
+    margin-left: 100px;
+}
+/* Sidebar Menu */
+.sidebar-menu {
+    
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 400;
+    gap: 44px;
+}
+
+/* Sidebar Menu Items */
+.sidebar-menu .nav-link {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    color: #FFFFFF;
+   
+    border-radius: 6px;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+/* Sidebar Menu Item - Hover Effect */
+.sidebar-menu .nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selected Item */
+.sidebar-menu .nav-link.active {
+    font-weight: 700;
+    color: #3A3A3A;
+    background: #c5a818;
+}
+
+/* Sidebar Menu Icons */
+.sidebar-menu .nav-link i {
+    font-size: 20px;
+    width: 32px;
+}
+
+
+.logout-btn {
+    position: fixed;
+    bottom: 100px;
+    left: 6%;
+    transform: translateX(-50%);
+    width: 10%;
+    background-color: #d4a537;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    text-align: center;
+    overflow: hidden;
+}
+.logout-btn:hover {
+    background-color: #b98b2d;
+}
+
+        /* Toggle Button */
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #c5a818;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+            display: none;
+        }
+
+      
+@media screen and (max-width: 2560px) {
+
+    .logout-btn {
+        position: fixed;
+        bottom: 100px;
+        left: 5%;
+        transform: translateX(-50%);
+        width: 7%;
+    }
+
+}
+
+@media screen and (max-width: 1440px) {
+
+    .logout-btn {
+        position: fixed;
+        bottom: 50px;
+        left: 10%;
+        transform: translateX(-50%);
+        width: 15%;
+    }
+
+}
+
+@media screen and (max-width: 768px) {
+
+    .logo {
+        position: absolute;
+        top: 10px;
+        left: -75px;
+    }
+    .logout-btn {
+        position: fixed;
+        bottom: 50px;
+        left: 14%;
+        transform: translateX(-50%);
+        width: 20%;
+    }
+
+}
+
+/* Responsive Sidebar */
+@media screen and (max-width: 767px) {
+    .sidebar {
+        display: none;
+    }
+    .sidebar-toggle {
+        display: block;
+    }
+    .logout-btn {
+        position: fixed;
+        bottom: 50px;
+        left: 21%;
+        transform: translateX(-50%);
+        width: 32%;
+    }
+    .logo {
+        position: absolute;
+        top: 10px;
+        left: -45px;
+    }
+    
+}
+@media screen and (max-width: 426px) {
+    .logout-btn {
+        position: fixed;
+        bottom: 50px;
+        left: 30%;
+        transform: translateX(-50%);
+        width: 49%;
+    }
+}
+@media screen and (max-width: 321px) {
+    .logout-btn {
+        position: fixed;
+        bottom: 50px;
+        left: 45%;
+        transform: translateX(-50%);
+        width: 70%;
+    }
+
+}
+
+/* use dashboard 1 */
+
+.content {
+    margin-left: 280px;
+    padding: 20px;
+    width: calc(100% - 280px);
+}
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.csv-btn {
+    background-color: #c5a818;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+.csv-btn:hover {
+    background-color: #b98b2d;
+}
+
+

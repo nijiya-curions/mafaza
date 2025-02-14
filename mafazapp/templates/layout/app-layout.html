@@ -11,11 +11,9 @@
 
 <body>
     <!-- sidebar -->
-    {% include 'partials/sidebar.html' %}   
     {% block 'content' %} 
     {% endblock %}
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/9.0.0/swiper-bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/9.0.0/swiper-bundle.min.css">
 
@@ -28,5 +26,6 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 
 <script src="{% static 'script.js' %}"></script>
+
 </body>
 </html>
