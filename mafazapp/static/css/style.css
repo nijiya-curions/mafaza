@@ -465,8 +465,8 @@
     transform: translateY(-3px);
     box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
 }
-.fa-file-alt{
-    color: rgb(28, 176, 235);
+.fa-file-alt,.fa-landmark,.fa-building{
+    color: rgb(21, 122, 217);
 }
 
 .content {
@@ -660,16 +660,75 @@ font-size: 22px;
 
 
 /* user transaction page */
-.custom-dropdown:hover option {
-    display: block;
+ .requestcontainer .card {
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: auto; /* Auto height for better responsiveness */
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-.upload-box {
+
+.requestcontainer .form-control1 {
+    background-color: #f8f9fa !important;
+}
+
+.requestcontainer .upload-box {
     border: 2px dashed #ccc;
     padding: 20px;
     text-align: center;
+    background-color: #f8f9fa;
+}
+
+.requestcontainer .csv-btn {
+    background: #d4af37;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
     border-radius: 5px;
 }
-.badge {
-    padding: 5px 10px;
-    border-radius: 5px;
+
+.requestcontainer .csv-btn:hover {
+    background: #b39429;
 }
+
+/* Ensure dropdown options are visible on hover */
+.custom-dropdown:hover option {
+    display: block;
+}
+
+.badge1,.badge2{
+    border-radius: 18px;
+    width: 96px;
+    height: 36px;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    font-family: Inter;
+    line-height: 22px;
+    font-weight: 400;
+    font-size: 14px;
+    justify-content: center;
+    padding-left: 9px;
+    padding-right: 9px;
+}
+.badge1{
+    background: #CC582AFF;
+    color: rgb(248, 247, 247);
+
+}
+ .badge2 {
+    background: #d4af37;
+    color: white;
+}
+
+
+/* user projects */
+
+.userproject .card-img-top {
+    border-radius: 20px; 
+    height: 350px; 
+    object-fit: cover; 
+}
+

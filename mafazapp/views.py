@@ -10,3 +10,6 @@ def userdashboard(request):
 
 def usertransaction(request):
     return render(request,'usertransaction.html')
+
+def userprojects(request):
+    return render(request,'userprojects.html')
