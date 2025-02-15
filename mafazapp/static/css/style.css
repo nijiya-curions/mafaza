@@ -257,6 +257,9 @@
 
 }
 
+
+
+       
 /* sidebar */
 
 
@@ -364,12 +367,13 @@
     .logout-btn {
         position: fixed;
         bottom: 100px;
-        left: 5%;
+        left: 5.5%;
         transform: translateX(-50%);
-        width: 7%;
+        width: 9.5%;
     }
 
 }
+
 
 @media screen and (max-width: 1440px) {
 
@@ -401,17 +405,19 @@
 }
 
 /* Responsive Sidebar */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 768px) {
     .sidebar {
         display: none;
+        z-index: 1000;
     }
     .sidebar-toggle {
         display: block;
+        z-index: 1000;
     }
     .logout-btn {
         position: fixed;
         bottom: 50px;
-        left: 21%;
+        left: 18%;
         transform: translateX(-50%);
         width: 32%;
     }
@@ -444,25 +450,226 @@
 
 /* use dashboard 1 */
 
-.content {
-    margin-left: 280px;
-    padding: 20px;
-    width: calc(100% - 280px);
-}
-.card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
+
 .csv-btn {
-    background-color: #c5a818;
+    background: linear-gradient(135deg, var(--accent-gold), #b39429);
     color: white;
+    box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
+   
+    
 }
 .csv-btn:hover {
-    background-color: #b98b2d;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+}
+.fa-file-alt{
+    color: rgb(28, 176, 235);
+}
+
+.content {
+    flex-grow: 1;
+padding-left: 300px;
+}
+th {
+text-transform: uppercase;
 }
 
 
+.pagination .page-item.active .page-link {
+    background-color: #d4a017;
+    color: white;
+    border-radius: 50%;
+    border: none;
+}
+.pagination .page-link {
+    border: none;
+}
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    background: none;
+    border: none;
+    color: inherit;
+}
+.page-link{
+color: black;
+}
+/* table */
+
+.table {
+height: 350px;
+opacity: 1;
+border: 2px solid #ddd; 
+border-collapse: separate;
+border-radius: 10px;
+overflow: hidden;
+}
+
+.table th, .table td {
+border-bottom: 1px solid #ddd;
+
+}
+
+.table tbody tr:last-child td {
+border-bottom: none;
+}
+/* cards */
+.card1 .card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    position: relative;
+    height: 150px;
+}
+.card1 h6,h4{
+font-weight: bold;
+font-size: 22px;
+}
+
+.icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    border: 2px solid gold;
+    padding: 8px;
+    border-radius: 5px;
+    background: white;
+    font-size: 25px;
+}
+.aed-text {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    font-weight: bold;
+    color: #000;
+    font-size: 25px;
+}
+/* search */
+.search-container {
+    display: flex;
+    align-items: center;
+    background-color: #f5f6f7; /* Light gray background */
+    border-radius: 20px; /* Rounded corners */
+    padding: 10px 15px;
+    width: 100%;
+    max-width: 300px; /* Adjust width as needed */
+    position: relative;
+}
+
+.search-icon {
+    color: #606770; /* Gray color for icon */
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.search-bar {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 16px;
+    width: 100%;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .content {
+        padding-left: 210px; /* Reduce margin when sidebar is toggled */
+        margin-left: 80px; /* Adjust margin to align with toggled sidebar */
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        margin-left: 0; /* Ensure alignment when sidebar is toggled */
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .card1 .card {
+        height: auto; /* Allow cards to adjust height dynamically */
+        text-align: center;
+    }
+
+    .icon {
+        position: static;
+        margin: 10px auto;
+        display: block;
+    }
+
+    .aed-text {
+        position: static;
+        display: block;
+        text-align: center;
+        margin-top: 5px;
+    }
+
+    .ledger1 {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .ledger1 .col-lg-4 {
+        margin-bottom: 10px;
+    }
+
+    .search-bar,
+    .search-icon {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .pagination {
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .row.card1 {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card1 .card {
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 15px;
+    }
+
+    .table th,
+    .table td {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+    }
+}
+
+
+/* user transaction page */
+.custom-dropdown:hover option {
+    display: block;
+}
+.upload-box {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    border-radius: 5px;
+}
+.badge {
+    padding: 5px 10px;
+    border-radius: 5px;
+}

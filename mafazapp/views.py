@@ -7,3 +7,6 @@ def home(request):
 
 def userdashboard(request):
     return render(request,'userdashboard.html')
+
+def usertransaction(request):
+    return render(request,'usertransaction.html')
