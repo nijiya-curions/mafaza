@@ -13,3 +13,24 @@ def usertransaction(request):
 
 def userprojects(request):
     return render(request,'userprojects.html')
+
+def admindashboard(request):
+    return render(request,'admindashboard.html')
+
+def adminusers(request):
+    return render(request,'adminusers.html')
+
+def admintransaction(request):
+    return render(request,'admintransaction.html')
+
+def userledger(request):
+    return render(request,'userledger.html')
+
+def adminprojects(request):
+    return render(request,'adminprojects.html')
+
+
+
+
+
+    

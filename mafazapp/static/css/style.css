@@ -453,7 +453,7 @@
 
 .csv-btn {
     background: linear-gradient(135deg, var(--accent-gold), #b39429);
-    color: white;
+    color: #ffffff;
     box-shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
     border: none;
     padding: 10px 20px;
@@ -698,7 +698,7 @@ font-size: 22px;
     display: block;
 }
 
-.badge1,.badge2{
+.badge1,.badge2,.badge3,.badge4{
     border-radius: 18px;
     width: 96px;
     height: 36px;
@@ -712,15 +712,22 @@ font-size: 22px;
     justify-content: center;
     padding-left: 9px;
     padding-right: 9px;
+    color: rgb(255, 255, 255);
 }
+
 .badge1{
     background: #CC582AFF;
-    color: rgb(248, 247, 247);
-
 }
  .badge2 {
     background: #d4af37;
-    color: white;
+}
+.badge3{
+    background: #003B1AFF;
+
+}
+.badge4{
+    background:  #1DD75BFF;
+
 }
 
 
@@ -731,4 +738,44 @@ font-size: 22px;
     height: 350px; 
     object-fit: cover; 
 }
+
+
+/* admin dashboard */
+
+.ledger1 h5{
+font-weight: bold;
+font-size: 22px;
+}
+.icons{
+    display: flex; 
+    justify-content: flex-end;
+     gap: 15px;
+      font-size: 25px;
+       margin-top: -40px; 
+       padding-bottom: 10px;
+       cursor: pointer;
+}
+.icons i:hover{
+    color: #b98b2d;
+
+}
+
+/* user ledger */
+
+.userledgerbtn{
+    width:100px ;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 

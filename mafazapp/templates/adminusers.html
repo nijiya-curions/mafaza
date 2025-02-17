@@ -1,0 +1,329 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>admin dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="{% static 'script.js' %}"></script>
+
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            
+        }
+
+    </style>
+</head>
+<body >
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar" >
+
+        <div class="col-lg-4 col-md-12 col-sm-12 col-12 logo">
+            <img src="{% static 'images/logo.svg' %}" alt="Logo" class="img-fluid ">
+        </div>
+<br><br><br><br>
+<nav class="sidebar-menu">
+    <a href="{% url 'admindashboard' %}" class="nav-link active">
+        <i class="fa-solid fa-table-columns"></i> Dashboard
+    </a>
+    <a href="{% url 'adminusers' %}" class="nav-link">
+        <i class='fas fa-user-shield'></i>
+
+        Admin & Users
+    </a>
+    <a href="{% url 'admintransaction' %}" class="nav-link">
+        <i class="fa-solid fa-exchange-alt"></i>
+        Transactions
+    </a>
+    <a href="{% url 'userledger' %}" class="nav-link">
+        <i class="fa-solid fa-user-group"></i>
+          User Ledger
+    </a>
+    <a href="{% url 'adminprojects' %}" class="nav-link">
+        <i class="fa-solid fa-code-branch"></i>
+             Projects
+    </a>
+</nav>
+<button class="logout-btn">Logout</button>
+    </div>
+
+
+    <!-- Toggle Button -->
+<button class="sidebar-toggle" id="toggleSidebar">☰ </button>
+
+<div class="content">
+    <div class="container-fluid" >
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-12"> 
+                <div class="card p-3">
+                    <h2 class="text-center">Admin Dashboard</h2>
+        
+                    <!-- Container to align icons to the right -->
+                    <div class="icons">
+                        <i class="fa-regular fa-bell"></i>
+                        <i class="fas fa-cog settings-icon"></i>
+                    </div>
+        
+                </div> 
+            </div>
+        </div>
+        
+                <br><br><br>
+
+
+                <div class="container-fluid mt-4">
+                    <!-- Pending Approvals Section -->
+                   
+                        <h5 class="fw-bold text-uppercase"> <i class="fas fa-file-alt"></i>
+                            Pending Approvals</h5>
+                        <table class="table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>NAME</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Country</th>
+                                    <th>PROJECTS</th>
+                                    <th>DOCUMENTS</th>
+                                    <th>USER STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>John Scott</strong></td>
+                                    <td>john_scott@hotmail.com</td>
+                                    <td>(480) 522-7804</td>
+                                    <td>1671 North Avenue, Anaheim, CA 92805</td>
+                                    <td>USA</td>
+                                    <td>WizeGlow</td>
+                                    <td><a href="#" class="text-primary">UPLOAD DOCUMENTS</a></td>
+                                    <td><button class="badge2 ">PENDING</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                  
+                    <!-- Admins & Users Section -->
+                  
+                        <h5 class="fw-bold text-uppercase"> <i class="fas fa-file-alt"></i>
+                            Admins & Users</h5>
+                        <div class="d-flex justify-content-between">
+                            <input type="text" class="form-control w-25" placeholder="Search...">
+                            <select class="form-select w-25">
+                                <option selected>Type</option>
+                                <option>All</option>
+                                <option>Admin</option>
+                                <option>User</option>
+                            </select>
+                        </div>
+                
+                        <table class="table mt-3">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>NAME</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Country</th>
+                                    <th>PROJECTS</th>
+                                    <th>INVESTMENT</th>
+                                    <th>RETURNS</th>
+                                    <th>USER STATUS</th>
+                                    <th>ADMIN STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Elizabeth Lee</strong></td>
+                                    <td>elee@yahoo.com</td>
+                                    <td>(724) 559-1245</td>
+                                    <td>8343 Island Street, Louisville, KY 40203</td>
+                                    <td>USA</td>
+                                    <td><button class="badge4" data-bs-toggle="modal" data-bs-target="#assignProjectModal">ADD</button>
+
+                                    </td>
+                                    <td>﷼ 803</td>
+                                    <td>﷼ 65</td>
+                                    <td><button class="badge3 ">ACTIVE</button></td>
+                                    <td><span class="badge2 bg-danger">ADMIN</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>John Scott</strong></td>
+                                    <td>john_scott@hotmail.com</td>
+                                    <td>(480) 522-7804</td>
+                                    <td>1671 North Avenue, Anaheim, CA 92805</td>
+                                    <td>USA</td>
+                                    <td><button class="badge4" data-bs-toggle="modal" data-bs-target="#assignProjectModal">ADD</button>
+
+                                    </td>
+                                    <td>﷼ 606</td>
+                                    <td>﷼ 65</td>
+                                    <td><button class="badge2 ">PENDING</button></td>
+                                    <td><span class="badge2 bg-primary">USER</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Jennifer Lopez</strong></td>
+                                    <td>jlopez@gmail.com</td>
+                                    <td>(802) 511-9335</td>
+                                    <td>848 King Street, Arlington, TX 76010</td>
+                                    <td>USA</td>
+                                    <td><button class="badge4 ">ADD</button></td>
+                                    <td>﷼ 803</td>
+                                    <td>﷼ 65</td>
+                                    <td><button class="badge3 ">ACTIVE</button></td>
+                                    <td><span class="badge2 bg-primary">USER</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pedro Moreno</strong></td>
+                                    <td>pedro.moreno@yahoo.com</td>
+                                    <td>(719) 886-9598</td>
+                                    <td>9343 Mountain Street, Milwaukee, WI 53206</td>
+                                    <td>USA</td>
+                                    <td><button class="badge4 ">ADD</button></td>
+                                    <td>﷼ 803</td>
+                                    <td>﷼ 65</td>
+                                    <td><button class="badge2 ">PENDING</button></td>
+                                    <td><span class="badge2 bg-primary">USER</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+           
+                    <div class="row mt-4">
+                        <div class="col-6" >
+                            <p>63 results</p>
+                            </div>
+                        <div class="col-6" >
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-end">
+                            <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">4</a></li>
+                            <li class="page-item"><a class="page-link" href="#">...</a></li>
+                            <li class="page-item"><a class="page-link" href="#">10</a></li>
+                            <li class="page-item"><a class="page-link" href="#">11</a></li>
+                            <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
+                        </ul>
+                    </nav>   </div></div>
+            
+                        </div>
+
+
+
+                        <!-- Modal -->
+<div class="modal fade" id="assignProjectModal" tabindex="-1" aria-labelledby="assignProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg"> <!-- Large modal -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignProjectModalLabel">
+                    <i class="fas fa-file-alt"></i> ASSIGN NEW PROJECTS
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Assign New Projects Form -->
+                <form>
+                    <div class="row">
+                        <!-- Investor Field -->
+                        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                            <label class="form-label">INVESTOR</label>
+                            <input type="text" class="form-control" value="NIJIYA" readonly>
+                        </div>
+                
+                        <!-- Project Dropdown -->
+                        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                            <label class="form-label">Project</label>
+                            <select class="form-select">
+                                <option selected>Projects</option>
+                                <option>Project 1</option>
+                                <option>Project 2</option>
+                            </select>
+                        </div>
+                
+                        <!-- ROI Input -->
+                        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                            <label class="form-label">ROI</label>
+                            <input type="text" class="form-control">
+                        </div>
+                    </div>
+                
+                    <div class="text-end">
+                        <button type="submit" class="btn csv-btn">Submit</button>
+                    </div>
+                </form>
+                
+                <hr> <!-- Divider -->
+
+                <!-- Assigned Projects Section -->
+                <h5>  <i class="fas fa-file-alt"></i> ASSIGNED PROJECTS</h5>
+                <table class="table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>PROJECT NAME</th>
+                            <th>ROI</th>
+                            <th>TOTAL INVESTMENT</th>
+                            <th>TOTAL RETURN</th>
+                            <th>EDIT ROI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Smooze</td>
+                            <td>12%</td>
+                            <td>﷼ 41</td>
+                            <td>﷼ 42</td>
+                            <td><button class=" badge2 btn-sm"><i class="fa-solid fa-file-pen"></i> EDIT</button></td>
+                        </tr>
+                        <tr>
+                            <td>Clara Lopez</td>
+                            <td>Performance Solutions</td>
+                            <td>Synergy Logic</td>
+                            <td>WorldWide Solutions, Inc.</td>
+                            <td><button class="badge2 btn-sm"><i class="fa-solid fa-file-pen"></i> EDIT</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+                        
+
+
+                    <script>
+                        // JavaScript for Sidebar Toggle
+                document.getElementById("toggleSidebar").addEventListener("click", function() {
+                    var sidebar = document.getElementById("sidebar");
+                    var toggleButton = document.getElementById("toggleSidebar");
+                
+                    if (sidebar.style.display === "none" || sidebar.style.display === "") {
+                        sidebar.style.display = "block";  // Show Sidebar
+                        toggleButton.innerHTML = "✖";   // Change to Close Button
+                    } else {
+                        sidebar.style.display = "none";  // Hide Sidebar
+                        toggleButton.innerHTML = "☰";   // Change to Menu Button
+                    }
+                });
+                    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

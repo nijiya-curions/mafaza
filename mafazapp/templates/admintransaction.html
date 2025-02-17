@@ -1,5 +1,6 @@
 {% load static %}
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,17 +31,25 @@
         </div>
 <br><br><br><br>
 <nav class="sidebar-menu">
-    <a href="{% url 'userdashboard' %}" class="nav-link active">
+    <a href="{% url 'admindashboard' %}" class="nav-link active">
         <i class="fa-solid fa-table-columns"></i> Dashboard
     </a>
-    <a href="{% url 'usertransaction' %}"  class="nav-link">
-        <i class="fa-solid fa-exchange-alt"></i>
+    <a href="{% url 'adminusers' %}" class="nav-link">
+        <i class='fas fa-user-shield'></i>
 
+        Admin & Users
+    </a>
+    <a href="{% url 'admintransaction' %}" class="nav-link">
+        <i class="fa-solid fa-exchange-alt"></i>
         Transactions
     </a>
-    <a href="{% url 'userprojects' %}" class="nav-link">
+    <a href="{% url 'userledger' %}" class="nav-link">
+        <i class="fa-solid fa-user-group"></i>
+          User Ledger
+    </a>
+    <a href="{% url 'adminprojects' %}" class="nav-link">
         <i class="fa-solid fa-code-branch"></i>
-                Projects
+             Projects
     </a>
 </nav>
 <button class="logout-btn">Logout</button>
@@ -56,9 +65,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="card p-3">
-                    <h2 class="text-center">NIJIYA's Dashboard</h2>
-                    <div class="d-flex justify-content-end" style="font-size: 25px; margin-top: -40px; padding-bottom: 10px;">
-                        <i class="fas fa-cog settings-icon" data-bs-toggle="modal" data-bs-target="#profileUpdateModal" style="cursor: pointer;"></i>
+                    <h2 class="text-center">Admin Dashboard</h2>
+        
+                    <!-- Container to align icons to the right -->
+                    <div class="icons">
+                        <i class="fa-regular fa-bell"></i>
+                        <i class="fas fa-cog settings-icon"></i>
                     </div>
                 </div>
             </div>
@@ -70,7 +82,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <h4><i class="fas fa-plus-circle"></i> REQUEST NEW TRANSACTION</h4>
+                    <h5 class="fw-bold text-uppercase"><i class="fas fa-file-alt"></i>  Add Transactions</h5>
+
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Date</label>
@@ -80,8 +93,16 @@
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>User</label>
+                            <select class="form-control">
+                                <option selected>Nijiya</option>
+                                <option>Anas</option>
+                                <option>Ramesh</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Amount</label>
-                            <input type="text" class="form-control form-control1" placeholder="Input text">
+                            <input type="text" class="form-control" placeholder="Input text">
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Project</label>
@@ -91,7 +112,10 @@
                                 <option>Project 2</option>
                             </select>
                         </div>
-                        <div class="col-lg-3 col-md-6 col-sm-12">
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
                             <label>Transaction Type</label>
                             <select class="form-control">
                                 <option selected>Type</option>
@@ -99,69 +123,102 @@
                                 <option>Withdrawal</option>
                             </select>
                         </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label>Narration</label>
+                            <input type="text" class="form-control" placeholder="Input text">
+                        </div>
                     </div>
                     <br>
                     <div class="row">
                         <div class="col-md-6 col-sm-12">
-                            <label>Narration</label>
-                            <input type="text" class="form-control form-control1" placeholder="Input text">
-                        </div>
-                        <div class="col-md-6 col-sm-12">
                             <label>Upload Receipt</label>
-                            <div class="upload-box">
-                                <p>Drop files here</p>
-                                <small>Supported format: PNG, JPG</small>
+                            <div class="upload-box border p-3 text-center">
+                                <p class="mb-1">Drop files here</p>
+                                <small class="text-muted">Supported format: PNG, JPG</small>
                             </div>
                         </div>
                     </div>
                     <br>
                     <div class="text-end">
-                        <button class="csv-btn">SUBMIT</button>
+                        <button class="btn csv-btn px-4">SUBMIT</button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <br>
+            
+                <br>
+            
 
         <!-- Recent Transactions Section -->
         <div class="row">
             <div class="col-12">
-                <h4><i class="fas fa-file-alt"></i> RECENT TRANSACTIONS</h4>
-                <div class="table-responsive">
+                <h5 class="fw-bold text-uppercase"><i class="fas fa-file-alt"></i> Pending Transactions</h5>
+                <div class="d-flex justify-content-between">
+                    <span></span>
+                    <select class="form-select w-25">
+                        <option selected>Type</option>
+                        <option>All</option>
+                        <option>Admin</option>
+                        <option>User</option>
+                    </select>
+                </div>
+        
+                <div class="table-responsive mt-3">
                     <table class="table">
-                        <thead>
+                        <thead class="table-light">
                             <tr>
-                                <th>DATE</th>
+                                <th>NAME</th>
                                 <th>PROJECT</th>
-                                <th>NARRATION</th>
                                 <th>INVESTMENT</th>
-                                <th>RETURNS</th>
                                 <th>WITHDRAWAL</th>
-                                <th>RECEIPT</th>
+                                <th>USER RECEIPT</th>
+                                <th>ADMIN RECEIPT</th>
                                 <th>STATUS</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>31-Oct-2021</td>
-                                <td>Ascend Solutions</td>
-                                <td>Laboris deserunt</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>56 د.إ</td>
-                                <td><a href="#">VIEW RECEIPT</a></td>
-                                <td><button class="badge1 ">Rejected</button></td>
+                                <td>John Scott</td>
+                                <td>WizeGlow</td>
+                                <td>﷼ 55</td>
+                                <td>﷼ 4</td>
+                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
+                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
+                                <td><button class="badge2 ">PENDING</button></td>
                             </tr>
                             <tr>
-                                <td>31-Oct-2021</td>
-                                <td>Ascend Solutions</td>
-                                <td>Laboris deserunt</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>56 د.إ</td>
-                                <td><a href="#">VIEW RECEIPT</a></td>
-                                <td><button class="badge2 ">Pending</button></td>
+                                <td>Isabella White</td>
+                                <td>Intelliweb Technologies</td>
+                                <td>﷼ 20</td>
+                                <td>﷼ 10</td>
+                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
+                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
+                                <td><button class="badge2 ">PENDING</button></td>
+                            </tr>
+                            <tr>
+                                <td>Ryan Miller</td>
+                                <td>Ideascape</td>
+                                <td>﷼ 15</td>
+                                <td>﷼ 11</td>
+                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
+                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
+                                <td><button class="badge2 ">PENDING</button></td>
+                            </tr>
+                            <tr>
+                                <td>Sarah Johnson</td>
+                                <td>RoboIntegrators</td>
+                                <td>﷼ 20</td>
+                                <td>﷼ 38</td>
+                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
+                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
+                                <td><button class="badge2 ">PENDING</button></td>
+                            </tr>
+                            <tr>
+                                <td>Ryan Young</td>
+                                <td>DataMasters, Ltd.</td>
+                                <td>﷼ 36</td>
+                                <td>﷼ 20</td>
+                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
+                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
+                                <td><button class="badge2 ">PENDING</button></td>
                             </tr>
                         </tbody>
                     </table>
