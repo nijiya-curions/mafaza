@@ -15,5 +15,4 @@ urlpatterns = [
     path('adminprojects/', views.adminprojects, name='adminprojects'),
 
 
-
 ]

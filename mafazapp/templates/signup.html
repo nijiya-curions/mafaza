@@ -204,11 +204,11 @@
         <form method="post">
             {% csrf_token %}
             <div class="form-grid">
-                
+        
                 <!-- First Name -->
                 <div class="form-group">
-                    <label for="{{ form.first_name.id_for_label }}" class="input-label">{{ form.first_name.label }}</label>
-                    {{ form.first_name }}
+                    <label for="first_name" class="input-label">First Name</label>
+                    <input type="text" name="first_name" id="first_name" class="form-control" value="{{ form.first_name.value|default_if_none:'' }}">
                     {% if form.first_name.errors %}
                         <div class="error-message">
                             {% for error in form.first_name.errors %}
@@ -220,8 +220,8 @@
         
                 <!-- Last Name -->
                 <div class="form-group">
-                    <label for="{{ form.last_name.id_for_label }}" class="input-label">{{ form.last_name.label }}</label>
-                    {{ form.last_name }}
+                    <label for="last_name" class="input-label">Last Name</label>
+                    <input type="text" name="last_name" id="last_name" class="form-control" value="{{ form.last_name.value|default_if_none:'' }}">
                     {% if form.last_name.errors %}
                         <div class="error-message">
                             {% for error in form.last_name.errors %}
@@ -233,8 +233,8 @@
         
                 <!-- Username -->
                 <div class="form-group">
-                    <label for="{{ form.username.id_for_label }}" class="input-label">{{ form.username.label }}</label>
-                    {{ form.username }}
+                    <label for="username" class="input-label">Username</label>
+                    <input type="text" name="username" id="username" class="form-control" value="{{ form.username.value|default_if_none:'' }}">
                     {% if form.username.errors %}
                         <div class="error-message">
                             {% for error in form.username.errors %}
@@ -243,11 +243,11 @@
                         </div>
                     {% endif %}
                 </div>
-
-                <!-- email -->
+        
+                <!-- Email -->
                 <div class="form-group">
-                    <label for="{{ form.email.id_for_label }}" class="input-label">{{ form.email.label }}</label>
-                    {{ form.email }}
+                    <label for="email" class="input-label">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" value="{{ form.email.value|default_if_none:'' }}">
                     {% if form.email.errors %}
                         <div class="error-message">
                             {% for error in form.email.errors %}
@@ -259,8 +259,8 @@
         
                 <!-- Password -->
                 <div class="form-group">
-                    <label for="{{ form.password.id_for_label }}" class="input-label">{{ form.password.label }}</label>
-                    {{ form.password }}
+                    <label for="password" class="input-label">Password</label>
+                    <input type="password" name="password" id="password" class="form-control">
                     {% if form.password.errors %}
                         <div class="error-message">
                             {% for error in form.password.errors %}
@@ -272,8 +272,8 @@
         
                 <!-- Confirm Password -->
                 <div class="form-group">
-                    <label for="{{ form.confirm_password.id_for_label }}" class="input-label">{{ form.confirm_password.label }}</label>
-                    {{ form.confirm_password }}
+                    <label for="confirm_password" class="input-label">Confirm Password</label>
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-control">
                     {% if form.confirm_password.errors %}
                         <div class="error-message">
                             {% for error in form.confirm_password.errors %}
@@ -285,8 +285,8 @@
         
                 <!-- Phone Number -->
                 <div class="form-group">
-                    <label for="{{ form.phone_number.id_for_label }}" class="input-label">{{ form.phone_number.label }}</label>
-                    {{ form.phone_number }}
+                    <label for="phone_number" class="input-label">Phone Number</label>
+                    <input type="text" name="phone_number" id="phone_number" class="form-control" value="{{ form.phone_number.value|default_if_none:'' }}">
                     {% if form.phone_number.errors %}
                         <div class="error-message">
                             {% for error in form.phone_number.errors %}
@@ -298,8 +298,8 @@
         
                 <!-- Address -->
                 <div class="form-group full-width">
-                    <label for="{{ form.address.id_for_label }}" class="input-label">{{ form.address.label }}</label>
-                    {{ form.address }}
+                    <label for="address" class="input-label">Address</label>
+                    <textarea name="address" id="address" class="form-control">{{ form.address.value|default_if_none:'' }}</textarea>
                     {% if form.address.errors %}
                         <div class="error-message">
                             {% for error in form.address.errors %}
@@ -310,6 +310,8 @@
                 </div>
         
             </div>
+        </form>
+        
         
             <!-- Display non-field errors (e.g., password mismatch)
             {% if form.non_field_errors %}
