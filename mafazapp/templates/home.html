@@ -12,10 +12,10 @@
                 <img src="{% static 'images/logo.svg' %}" alt="Logo" class="img-fluid logo">
             </div>
             <div class=" col-lg-4 col-md-6 col-sm-6 col-6  ">
-                <button class="btn button ">SIGNUP</button>
+                <button class="btn button "><a href="{% url 'signup' %}" class="nav-link">SIGNUP</button></a>
             </div>
             <div class=" col-lg-4 col-md-6 col-sm-6 col-6  ">
-                <button class="btn button ">LOGIN</button>
+                <button class="btn button "><a href="{% url 'login' %}" class="nav-link">LOGIN</button></a>
             </div>
         </div>
 

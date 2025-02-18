@@ -13,15 +13,12 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="{% static 'script.js' %}"></script>
-
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            
-        }
-
-    </style>
+<style>
+    .form-check-input:checked {
+    background-color: #004d1a;
+    border-color: #004d1a;
+}
+</style>
 </head>
 <body >
 
@@ -123,8 +120,8 @@
                             <small class="text-muted">Supported format: PNG, JPG</small>  </div>
                        
                             <div class="d-flex justify-content-center mt-2">
-                                <img src="icon1.png" alt="Icon 1" width="40" class="me-2">
-                                <img src="icon2.png" alt="Icon 2" width="40">
+                                <img src="{% static 'images/mimg1.jpg' %}" alt="Icon 1" width="40" class="me-2">
+                                <img src="{% static 'images/mimg2.jpg' %}" alt="Icon 2" width="40">
                             </div>
                       </div>
                 <br>
@@ -132,76 +129,157 @@
                     <button class="btn csv-btn px-4">SUBMIT</button>
                 </div>
             </div>
-        
+        </div>
+
             <br>
 
 
-
 <!-- Current Projects Section -->
-<h5 class="fw-bold text-uppercase"><i class="fas fa-list"></i> CURRENT PROJECTS</h5>
 <div class="row">
-    <!-- Project Card -->
-    <div class="col-lg-6 col-md-12 mb-4">
-        <div class="card p-3">
-            <h6 class="fw-bold">IZA TOWER 1</h6>
-            <h3 class="fw-bold">91,42,405</h3>
-            <p class="text-muted">Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing</p>
-            <div class="d-flex align-items-center justify-content-between">
-                <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> EDIT</button>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" checked>
-                    <label class="form-check-label">ACTIVE</label>
+    <!-- Current Projects Section 1 -->
+<div class="col-lg-6 col-md-12 mb-4">
+    <div class="card p-3">
+        <div class="row align-items-center">
+            <!-- Left Side - Text Content -->
+            <div class="col-lg-6 col-md-6 col-12">
+                <h6 class="fw-bold">IZA TOWER 1</h6>
+                <h3 class="fw-bold">91,42,405</h3>
+                <textarea class="form-control text-muted" rows="3">
+                    Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing
+                </textarea>
+            </div>
+
+            <!-- Right Side - Image Stack -->
+            <div class="col-lg-6 col-md-6 col-12 d-flex justify-content-center mt-3 mt-md-0">
+                <div class="image-stack">
+                    <img src="{% static 'images/mimg2.jpg' %}" class="image image-left">
+                    <img src="{% static 'images/mimg1.jpg' %}" class="image image-center">
+                    <img src="{% static 'images/mimg3.jpg' %}" class="image image-right">
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="col-lg-6 col-md-12 mb-4">
-        <div class="card p-3">
-            <h6 class="fw-bold">IZA TOWER 1</h6>
-            <h3 class="fw-bold">91,42,405</h3>
-            <p class="text-muted">Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing</p>
-            <div class="d-flex align-items-center justify-content-between">
-                <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> EDIT</button>
+            <!-- Buttons and Active Switch -->
+            <div class="col-12 mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between">
+                <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0">
+                    <i class="fas fa-edit"></i> EDIT
+                </button>
                 <div class="form-check form-switch">
+                    <span class="fw-bold ms-2">ACTIVE</span>
                     <input class="form-check-input" type="checkbox" checked>
-                    <label class="form-check-label">ACTIVE</label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-6 col-md-12 mb-4">
-        <div class="card p-3">
-            <h6 class="fw-bold">IZA TOWER 1</h6>
-            <h3 class="fw-bold">91,42,405</h3>
-            <p class="text-muted">Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing</p>
-            <div class="d-flex align-items-center justify-content-between">
-                <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> EDIT</button>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" checked>
-                    <label class="form-check-label">ACTIVE</label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-6 col-md-12 mb-4">
-        <div class="card p-3">
-            <h6 class="fw-bold">IZA TOWER 1</h6>
-            <h3 class="fw-bold">91,42,405</h3>
-            <p class="text-muted">Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing</p>
-            <div class="d-flex align-items-center justify-content-between">
-                <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> EDIT</button>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" checked>
-                    <label class="form-check-label">ACTIVE</label>
+                   
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
 
+    <!-- Current Projects Section 2 -->
+    <div class="col-lg-6 col-md-12 mb-4">
+        <div class="card p-3">
+            <div class="row align-items-center">
+                <!-- Left Side - Text Content -->
+                <div class="col-lg-6 col-md-6 col-12">
+                    <h6 class="fw-bold">IZA TOWER 1</h6>
+                    <h3 class="fw-bold">91,42,405</h3>
+                    <textarea class="form-control text-muted" rows="3">
+                        Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing
+                    </textarea>
+                </div>
+    
+                <!-- Right Side - Image Stack -->
+                <div class="col-lg-6 col-md-6 col-12 d-flex justify-content-center mt-3 mt-md-0">
+                    <div class="image-stack">
+                        <img src="{% static 'images/mimg2.jpg' %}" class="image image-left">
+                        <img src="{% static 'images/mimg1.jpg' %}" class="image image-center">
+                        <img src="{% static 'images/mimg3.jpg' %}" class="image image-right">
+                    </div>
+                </div>
+    
+                <!-- Buttons and Active Switch -->
+                <div class="col-12 mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between">
+                    <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0">
+                        <i class="fas fa-edit"></i> EDIT
+                    </button>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" checked>
+                        <span class="fw-bold ms-2">ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- section 2 -->
+<div class="row">
+    <!-- Current Projects Section 2-->
+    <div class="col-lg-6 col-md-12 mb-4">
+        <div class="card p-3">
+            <div class="row align-items-center">
+                <!-- Left Side - Text Content -->
+                <div class="col-lg-6 col-md-6 col-12">
+                    <h6 class="fw-bold">IZA TOWER 1</h6>
+                    <h3 class="fw-bold">91,42,405</h3>
+                    <textarea class="form-control text-muted" rows="3">
+                        Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing
+                    </textarea>
+                </div>
+    
+                <!-- Right Side - Image Stack -->
+                <div class="col-lg-6 col-md-6 col-12 d-flex justify-content-center mt-3 mt-md-0">
+                    <div class="image-stack">
+                        <img src="{% static 'images/mimg2.jpg' %}" class="image image-left">
+                        <img src="{% static 'images/mimg1.jpg' %}" class="image image-center">
+                        <img src="{% static 'images/mimg3.jpg' %}" class="image image-right">
+                    </div>
+                </div>
+    
+                <!-- Buttons and Active Switch -->
+                <div class="col-12 mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between">
+                    <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0">
+                        <i class="fas fa-edit"></i> EDIT
+                    </button>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" checked>
+                        <span class="fw-bold ms-2">ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        <!-- Current Projects Section 2 -->
+        <div class="col-lg-6 col-md-12 mb-4">
+            <div class="card p-3">
+                <div class="row align-items-center">
+                    <!-- Left Side - Text Content -->
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <h6 class="fw-bold">IZA TOWER 1</h6>
+                        <h3 class="fw-bold">91,42,405</h3>
+                        <textarea class="form-control text-muted" rows="3">
+                            Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing
+                        </textarea>
+                    </div>
+        
+                    <!-- Right Side - Image Stack -->
+                    <div class="col-lg-6 col-md-6 col-12 d-flex justify-content-center mt-3 mt-md-0">
+                        <div class="image-stack">
+                            <img src="{% static 'images/mimg2.jpg' %}" class="image image-left">
+                            <img src="{% static 'images/mimg1.jpg' %}" class="image image-center">
+                            <img src="{% static 'images/mimg3.jpg' %}" class="image image-right">
+                        </div>
+                    </div>
+        
+                    <!-- Buttons and Active Switch -->
+                    <div class="col-12 mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between">
+                        <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0">
+                            <i class="fas fa-edit"></i> EDIT
+                        </button>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" checked>
+                            <span class="fw-bold ms-2">ACTIVE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 <!-- Add FontAwesome for icons -->
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
