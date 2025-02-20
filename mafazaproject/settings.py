@@ -124,3 +124,14 @@ STATICFILES_DIRS = [BASE_DIR /"mafazapp"/ "static"]
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# Ensure cache is disabled for authenticated pages
+CACHE_MIDDLEWARE_SECONDS = 0  # Disable caching entirely
+CACHE_MIDDLEWARE_KEY_PREFIX = ''  # Optional
+
+
+SESSION_COOKIE_AGE = 1209600  # Two weeks
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session active when the browser is closed
+

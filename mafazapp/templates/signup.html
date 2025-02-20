@@ -16,15 +16,7 @@
         <div class="login-header">
             <h1>Create Account</h1>
             <p>Join Mafaza today</p>
-       <!-- Display messages -->
-  {% if messages %}
-  <div class="messages">
-      {% for message in messages %}
-      <div class="success">{{ message }}</div>
-      {% endfor %}
-  </div>
-  {% endif %}
-        </div>
+   
 
         <form method="post">
             {% csrf_token %}

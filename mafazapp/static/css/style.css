@@ -31,7 +31,6 @@ body {
 .button {
     position: absolute;
     top: 40px;
-   
     width: 156px;
     height: 42px;
     padding: 0 20px; 
@@ -483,29 +482,11 @@ body {
 }
 .sidebar-menu .nav-link.logout {
     font-weight: 700;
-    color: #003b1a;
-    background: white;
-}
-
-
-.logout-btn {
-    position: fixed;
-    bottom: 100px;
-    left: 6%;
-    transform: translateX(-50%);
-    width: 10%;
-    background-color: #d4a537;
     color: white;
-    border: none;
-    padding: 10px;
-    font-size: 18px;
-    border-radius: 5px;
-    text-align: center;
-    overflow: hidden;
+    background: #c5a818;
 }
-.logout-btn:hover {
-    background-color: #b98b2d;
-}
+
+
 
         /* Toggle Button */
         .sidebar-toggle {
@@ -824,8 +805,18 @@ padding: 10px;
         flex-wrap: wrap;
     }
 }
-
-
+.transactionbtn{
+    width: 100%;
+}
+.transactionbtn .btn{
+width: 300px;
+}
+@media (max-width: 320px) {
+  
+    .transactionbtn .btn{
+    width: 100px;
+    }
+}
 /* user transaction page */
  .requestcontainer .card {
     border: none;
@@ -872,7 +863,7 @@ padding: 10px;
     text-align: center;
     align-items: center;
     display: flex;
-    font-family: Inter;
+   
     line-height: 22px;
     justify-content: center;
     padding-left: 9px;
@@ -882,10 +873,17 @@ padding: 10px;
     font-size: 12px;
     font-weight: 700;
 }
-
-.badge1{
-    background: #CC582AFF;
+.badge1.admin {
+    background: #CC582AFF; 
+    color: white;
 }
+
+.badge1.user {
+    background: #5CA4FF; 
+    color: white;
+}
+
+
  .badge2 {
     background: #d4af37;
 }
@@ -895,7 +893,9 @@ padding: 10px;
 }
 .badge4{
     background:  #1DD75BFF;
-
+    border-radius: 18px;
+    width: 55px !important;
+    height: 36px !important;
 }
 .content .settings{
     font-size: 25px; 
@@ -1008,7 +1008,11 @@ font-size: 22px;
     background-color: #004d1a !important;
     border-color: #004d1a !important;
 }
-
+.adminprojectfile{
+border: 3px dashed #ccc; 
+border-radius: 8px;
+width: 50%;
+}
 @media (max-width: 425px) {
     /* Ensure image container stays intact */
     .image-stack {

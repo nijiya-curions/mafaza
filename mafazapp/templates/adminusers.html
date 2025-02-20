@@ -78,146 +78,194 @@
 
                 <div class="container-fluid mt-4">
                     <!-- Pending Approvals Section -->
-                   
-                        <h5 class="fw-bold text-uppercase"> <i class="fas fa-file-alt"></i>
-                            Pending Approvals</h5>
-                        <table class="table">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>NAME</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Address</th>
-                                    <th>Country</th>
-                                    <th>PROJECTS</th>
-                                    <th>DOCUMENTS</th>
-                                    <th>USER STATUS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>John Scott</strong></td>
-                                    <td>john_scott@hotmail.com</td>
-                                    <td>(480) 522-7804</td>
-                                    <td>1671 North Avenue, Anaheim, CA 92805</td>
-                                    <td>USA</td>
-                                    <td>WizeGlow</td>
-                                    <td><a href="#" class="text-primary">UPLOAD DOCUMENTS</a></td>
-                                    <td><button class="badge2 ">PENDING</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                  
+                    <h5 class="fw-bold text-uppercase"> <i class="fas fa-file-alt"></i> Pending Approvals</h5>
+                
+                    <table class="table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>NAME</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Country</th>
+                                <th>PROJECTS</th>
+                                <th>DOCUMENTS</th>
+                                <th>USER STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in pending_users %}
+                            <tr>
+                                <td><strong>{{ user.first_name }} {{ user.last_name }}</strong></td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone_number }}</td>
+                                <td>{{ user.address }}</td>
+                                <td>{{ user.country }}</td>
+                                <td>WizeGlow</td> <!-- Placeholder project -->
+                                <td><a href="#" class="text-primary">UPLOAD DOCUMENTS</a></td>
+                                <td>
+                                    <form method="POST" action="{% url 'adminusers' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <button type="submit" name="action" value="confirm_toggle" 
+                                            class="badge2 bg-warning text-dark">
+                                            PENDING
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No pending approvals.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                
                     <!-- Admins & Users Section -->
                   
-                        <h5 class="fw-bold text-uppercase"> <i class="fas fa-file-alt"></i>
-                            Admins & Users</h5>
-                        <div class="d-flex justify-content-between">
-                            <input type="text" class="form-control w-25" placeholder="Search...">
-                            <select class="form-select w-25">
-                                <option selected>Type</option>
-                                <option>All</option>
-                                <option>Admin</option>
-                                <option>User</option>
-                            </select>
+                    <div class="row align-items-center">
+                        <!-- Title -->
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12  mb-2 mb-md-0">
+                            <h5 class="fw-bold text-uppercase me-3 mb-0"> 
+                                <i class="fas fa-file-alt"></i> Admins & Users
+                            </h5>
                         </div>
-                
-                        <table class="table mt-3">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>NAME</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Address</th>
-                                    <th>Country</th>
-                                    <th>PROJECTS</th>
-                                    <th>INVESTMENT</th>
-                                    <th>RETURNS</th>
-                                    <th>USER STATUS</th>
-                                    <th>ADMIN STATUS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Elizabeth Lee</strong></td>
-                                    <td>elee@yahoo.com</td>
-                                    <td>(724) 559-1245</td>
-                                    <td>8343 Island Street, Louisville, KY 40203</td>
-                                    <td>USA</td>
-                                    <td><button class="badge4" data-bs-toggle="modal" data-bs-target="#assignProjectModal">ADD</button>
-
-                                    </td>
-                                    <td><span class="currency">AED</span> 803</td>
-                                    <td><span class="currency">AED</span> 65</td>
-                                    <td><button class="badge3 ">ACTIVE</button></td>
-                                    <td><span class="badge2 bg-danger">ADMIN</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>John Scott</strong></td>
-                                    <td>john_scott@hotmail.com</td>
-                                    <td>(480) 522-7804</td>
-                                    <td>1671 North Avenue, Anaheim, CA 92805</td>
-                                    <td>USA</td>
-                                    <td><button class="badge4" data-bs-toggle="modal" data-bs-target="#assignProjectModal">ADD</button>
-
-                                    </td>
-                                    <td><span class="currency">AED</span> 606</td>
-                                    <td><span class="currency">AED</span> 65</td>
-                                    <td><button class="badge2 ">PENDING</button></td>
-                                    <td><span class="badge2 bg-primary">USER</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Jennifer Lopez</strong></td>
-                                    <td>jlopez@gmail.com</td>
-                                    <td>(802) 511-9335</td>
-                                    <td>848 King Street, Arlington, TX 76010</td>
-                                    <td>USA</td>
-                                    <td><button class="badge4 ">ADD</button></td>
-                                    <td><span class="currency">AED</span> 803</td>
-                                    <td><span class="currency">AED</span> 65</td>
-                                    <td><button class="badge3 ">ACTIVE</button></td>
-                                    <td><span class="badge2 bg-primary">USER</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Pedro Moreno</strong></td>
-                                    <td>pedro.moreno@yahoo.com</td>
-                                    <td>(719) 886-9598</td>
-                                    <td>9343 Mountain Street, Milwaukee, WI 53206</td>
-                                    <td>USA</td>
-                                    <td><button class="badge4 ">ADD</button></td>
-                                    <td><span class="currency">AED</span> 803</td>
-                                    <td><span class="currency">AED</span> 65</td>
-                                    <td><button class="badge2 ">PENDING</button></td>
-                                    <td><span class="badge2 bg-primary">USER</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    
+                        <!-- Search Bar -->
+                        <div class=" col-lg-4 col-md-4 col-sm-12  col-12 col-md">
+                            <div class="input-group w-50">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" name="search" class="form-control bg-light"
+                                       placeholder="Search..." value="{{ search_query }}">
+                            </div>
+                        </div>
+                    
+                       
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12  mt-2 mt-md-0">
+                            <form method="GET" action="{% url 'adminusers' %}">
+                                <select name="user_type" class="form-select w-auto" onchange="this.form.submit()">
+                                    <option value="" {% if not user_type %}selected{% endif %}>All</option>
+                                    <option value="Admin" {% if user_type == 'Admin' %}selected{% endif %}>Admin</option>
+                                    <option value="User" {% if user_type == 'User' %}selected{% endif %}>User</option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                    
+                                 
+                    <table class="table mt-3">
+                        <thead class="table-light">
+                            <tr>
+                                <th>NAME</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Country</th>
+                                <th>PROJECTS</th>
+                                <th>INVESTMENT</th>
+                                <th>RETURNS</th>
+                                <th>USER STATUS</th>
+                                <th>ADMIN STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td><strong>{{ user.first_name }} {{ user.last_name }}</strong></td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.phone_number }}</td>
+                                <td>{{ user.address }}</td>
+                                <td>{{ user.country }}</td>
+                                <td><button class="badge4" data-bs-toggle="modal" data-bs-target="#assignProjectModal">ADD</button></td>
+                                <td><span class="currency">AED</span> 0</td> 
+                                <td><span class="currency">AED</span> 0</td> 
+                    
+                                <td>
+                                    <form method="POST" action="{% url 'adminusers' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <button type="submit" name="action" value="confirm_toggle" 
+                                            class="badge3 {% if user.is_approved %}bg-success{% else %}bg-warning{% endif %}">
+                                            {% if user.is_approved %} Active {% else %} Pending {% endif %}
+                                        </button>
+                                    </form>
+                                </td>
+                                
+                                <td>
+                                    <form method="POST" action="{% url 'adminusers' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <button type="submit" name="action" value="{% if user.is_staff %}demote{% else %}promote{% endif %}" 
+                                                class="badge1 {% if user.is_staff %}admin{% else %}user{% endif %}">
+                                            {% if user.is_staff %} Admin {% else %} User {% endif %}
+                                        </button>
+                                    </form>
+                                </td>
+                                          
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
                     </div>
            
-                    <div class="row mt-4">
-                        <div class="col-6" >
-                            <p>63 results</p>
-                            </div>
-                        <div class="col-6" >
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination justify-content-end">
-                            <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">4</a></li>
-                            <li class="page-item"><a class="page-link" href="#">...</a></li>
-                            <li class="page-item"><a class="page-link" href="#">10</a></li>
-                            <li class="page-item"><a class="page-link" href="#">11</a></li>
-                            <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-                        </ul>
-                    </nav>   </div></div>
-            
-                        </div>
-
-
-
-                        <!-- Modal -->
+                   <!-- Pagination -->
+                   <div class="row mt-4">
+                    <div class="col-6">
+                        <p>{{ users.paginator.count }} results</p>
+                    </div>
+                    <div class="col-6">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination justify-content-end">
+                                <!-- Previous Button -->
+                                {% if users.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ users.previous_page_number }}">&lt;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#">&lt;</a>
+                                    </li>
+                                {% endif %}
+                                
+                                <!-- Page Numbers -->
+                                {% for num in users.paginator.page_range %}
+                                    {% if num == users.number %}
+                                        <li class="page-item active">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% elif num > users.number|add:-3 and num < users.number|add:3 %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                
+                                <!-- Dots for Large Pagination -->
+                                {% if users.paginator.num_pages > users.number|add:3 %}
+                                    <li class="page-item"><a class="page-link" href="#">...</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ users.paginator.num_pages }}">{{ users.paginator.num_pages }}</a>
+                                    </li>
+                                {% endif %}
+                
+                                <!-- Next Button -->
+                                {% if users.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ users.next_page_number }}">&gt;</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#">&gt;</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                
+<!-- Modal -->
 <div class="modal fade" id="assignProjectModal" tabindex="-1" aria-labelledby="assignProjectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg"> <!-- Large modal -->
         <div class="modal-content">
@@ -300,9 +348,7 @@
     </div>
 </div>
                         
-
-
-                    <script>
+        <script>
                         // JavaScript for Sidebar Toggle
                 document.getElementById("toggleSidebar").addEventListener("click", function() {
                     var sidebar = document.getElementById("sidebar");

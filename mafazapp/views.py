@@ -7,6 +7,17 @@ from .models import CustomUser
 from django.contrib.auth import logout
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
+from django.contrib import messages
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.contrib.auth import get_user_model
 
 
 def home(request):
@@ -126,7 +137,182 @@ def admin_required(user):
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def adminusers(request):
-    return render(request,'adminusers.html')
+    User = get_user_model()
+
+    # Get search query and user type filter
+    search_query = request.GET.get('search', '')
+    user_type = request.GET.get('user_type', '')
+
+    # Base query: Exclude superusers
+    users = User.objects.exclude(is_superuser=True)
+
+    # Get only approved users
+    approved_users = users.filter(is_approved=True)
+
+    # Get only pending users
+    pending_users = users.filter(is_approved=False)
+
+    # Filter approved users by search query
+    if search_query:
+        approved_users = approved_users.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    # Filter approved users by user type
+    if user_type == 'Admin':
+        approved_users = approved_users.filter(is_staff=True)
+    elif user_type == 'User':
+        approved_users = approved_users.filter(is_staff=False)
+
+    # Sort approved users by first name
+    approved_users = approved_users.order_by('first_name')
+
+    # Paginate approved users
+    paginator = Paginator(approved_users, 2)
+    page_number = request.GET.get('page')
+    page_users = paginator.get_page(page_number)
+
+    # Handle User Activation / Deactivation & Role Change
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        action = request.POST.get('action')
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            messages.error(request, "User not found.")
+            return redirect('adminusers')
+
+        if request.user.is_staff:
+            if action == 'confirm_toggle':  # Activate / Deactivate User
+                user.is_approved = not user.is_approved
+                user.save()
+                status = "activated" if user.is_approved else "deactivated"
+                messages.success(request, f"User {user.username} has been {status}.")
+                return redirect('adminusers')
+
+            elif action == 'promote':  # Promote to Admin (Staff)
+                if not user.is_staff:
+                    user.is_staff = True
+                    user.save()
+                    messages.success(request, f"User {user.username} has been promoted to Admin.")
+                else:
+                    messages.error(request, "User is already an Admin.")
+
+            elif action == 'demote':  # Demote from Admin to Regular User
+                if user.is_staff:
+                    user.is_staff = False
+                    user.save()
+                    messages.success(request, f"User {user.username} has been demoted to a regular user.")
+                else:
+                    messages.error(request, "User is not an Admin.")
+
+        else:
+            messages.error(request, "You do not have permission to perform this action.")
+
+    return render(request, 'adminusers.html', {
+        'users': page_users,  # Paginated approved users
+        'pending_users': pending_users,  # List of pending users
+        'search_query': search_query,
+        'user_type': user_type
+    })
+
+# def adminusers(request):
+#     User = get_user_model()
+
+#     # Get the search query from the GET request
+#     search_query = request.GET.get('search', '')
+
+#     # Filter users based on the search query
+#     if search_query:
+#         users = User.objects.exclude(is_superuser=True).filter(
+#             first_name__icontains=search_query
+#         ) | User.objects.exclude(is_superuser=True).filter(
+#             last_name__icontains=search_query
+#         )
+#     else:
+#         users = User.objects.exclude(is_superuser=True)
+
+#     # Sort users: Show not activated (is_approved=False) first, then activated users
+#     users = users.order_by('is_approved', 'first_name')
+
+#     # Pagination: Show 10 users per page
+#     paginator = Paginator(users, 10)
+#     page_number = request.GET.get('page')
+#     page_users = paginator.get_page(page_number)
+
+#     if request.method == 'POST':
+#         user_id = request.POST.get('user_id')
+#         action = request.POST.get('action')
+
+#         try:
+#             user = User.objects.get(id=user_id)
+#         except User.DoesNotExist:
+#             messages.error(request, "User not found.")
+#             return redirect('adminusers')
+
+#         # Only staff users can promote/demote other users
+#         if request.user.is_staff:
+#             if action == 'confirm_toggle':
+#                 user.is_approved = not user.is_approved
+#                 user.save()
+#                 status = "activated" if user.is_approved else "deactivated"
+#                 messages.success(request, f"User {user.username} has been {status}.")
+#                 return redirect('adminusers')
+#             elif action == 'promote':  # Promote to staff
+#                 if not user.is_staff:
+#                     user.is_staff = True
+#                     user.save()
+#                     messages.success(request, f"User {user.username} has been promoted to Staff.")
+#                 else:
+#                     messages.error(request, "User is already a Staff member.")
+#             elif action == 'demote':  # Demote from staff
+#                 if user.is_staff:
+#                     user.is_staff = False
+#                     user.save()
+#                     messages.success(request, f"User {user.username} has been demoted to a regular user.")
+#                 else:
+#                     messages.error(request, "User is not a Staff member.")
+#         else:
+#             messages.error(request, "You do not have permission to perform this action.")
+#             return redirect('adminusers')
+
+#     return render(request, 'adminusers.html', {
+#         'users': page_users,  # Paginated users
+#         'search_query': search_query
+#     })
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # admin transaction
 def admin_required(user):

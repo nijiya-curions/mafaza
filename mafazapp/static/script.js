@@ -61,28 +61,16 @@ const swiper = new Swiper('.swiper', {
     }
 });
 
-
-// sidebar
-
 // JavaScript for Sidebar Toggle
+document.getElementById("toggleSidebar").addEventListener("click", function() {
+var sidebar = document.getElementById("sidebar");
+var toggleButton = document.getElementById("toggleSidebar");
 
-
-document.addEventListener("DOMContentLoaded", function() {
-    var sidebar = document.getElementById("sidebar");
-    var toggleButton = document.getElementById("toggleSidebar");
-
-    if (toggleButton) {
-        toggleButton.addEventListener("click", function() {
-            if (sidebar.style.display === "none" || sidebar.style.display === "") {
-                sidebar.style.display = "block";  // Show Sidebar
-                toggleButton.innerHTML = "✖";   // Change to Close Button
-            } else {
-                sidebar.style.display = "none";  // Hide Sidebar
-                toggleButton.innerHTML = "☰";   // Change to Menu Button
-            }
-        });
-    } else {
-        console.error("Toggle button not found!");
-    }
+if (sidebar.style.display === "none" || sidebar.style.display === "") {
+sidebar.style.display = "block";  // Show Sidebar
+toggleButton.innerHTML = "✖";   // Change to Close Button
+} else {
+sidebar.style.display = "none";  // Hide Sidebar
+toggleButton.innerHTML = "☰";   // Change to Menu Button
+}
 });
-
