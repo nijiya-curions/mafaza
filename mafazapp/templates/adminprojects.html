@@ -1,6 +1,5 @@
 {% load static %}
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,16 +12,10 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="{% static 'script.js' %}"></script>
-<style>
-    .form-check-input:checked {
-    background-color: #004d1a;
-    border-color: #004d1a;
-}
-</style>
+
 </head>
 <body >
 
-    <!-- Sidebar -->
     <div class="sidebar" id="sidebar" >
 
         <div class="col-lg-4 col-md-12 col-sm-12 col-12 logo">
@@ -30,7 +23,7 @@
         </div>
 <br><br><br><br>
 <nav class="sidebar-menu">
-    <a href="{% url 'admindashboard' %}" class="nav-link active">
+    <a href="{% url 'admindashboard' %}" class="nav-link">
         <i class="fa-solid fa-table-columns"></i> Dashboard
     </a>
     <a href="{% url 'adminusers' %}" class="nav-link">
@@ -46,13 +39,16 @@
         <i class="fa-solid fa-user-group"></i>
           User Ledger
     </a>
-    <a href="{% url 'adminprojects' %}" class="nav-link">
+    <a href="{% url 'adminprojects' %}" class="nav-link active">
         <i class="fa-solid fa-code-branch"></i>
              Projects
     </a>
+<a href="{% url 'logout' %}" class="nav-link logout">
+        <i class="fa-solid fa-door-open"></i>
+             Log Out
+    </a>
 </nav>
-<button class="logout-btn">Logout</button>
-    </div>
+ </div>
 
 
     <!-- Toggle Button -->
@@ -281,5 +277,10 @@
                 </div>
             </div>
         </div>
+        </div>
+        </div></div></div></div></div></div>
 <!-- Add FontAwesome for icons -->
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="{% static 'script.js' %}"></script>
+</body>
+</html>

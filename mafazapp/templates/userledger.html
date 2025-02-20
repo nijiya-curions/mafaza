@@ -12,14 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="{% static 'script.js' %}"></script>
 
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            
-        }
-
-    </style>
 </head>
 <body >
 
@@ -31,7 +23,7 @@
         </div>
 <br><br><br><br>
 <nav class="sidebar-menu">
-    <a href="{% url 'admindashboard' %}" class="nav-link active">
+    <a href="{% url 'admindashboard' %}" class="nav-link">
         <i class="fa-solid fa-table-columns"></i> Dashboard
     </a>
     <a href="{% url 'adminusers' %}" class="nav-link">
@@ -43,7 +35,7 @@
         <i class="fa-solid fa-exchange-alt"></i>
         Transactions
     </a>
-    <a href="{% url 'userledger' %}" class="nav-link">
+    <a href="{% url 'userledger' %}" class="nav-link active">
         <i class="fa-solid fa-user-group"></i>
           User Ledger
     </a>
@@ -51,9 +43,12 @@
         <i class="fa-solid fa-code-branch"></i>
              Projects
     </a>
+<a href="{% url 'logout' %}" class="nav-link logout">
+        <i class="fa-solid fa-door-open"></i>
+             Log Out
+    </a>
 </nav>
-<button class="logout-btn">Logout</button>
-    </div>
+</div>
 
 
     <!-- Toggle Button -->
@@ -111,45 +106,45 @@
                             <tr>
                                 <td>John Scott</td>
                                 <td>WizeGlow</td>
-                                <td>﷼ 55</td>
-                                <td>﷼ 72</td>
-                                <td>﷼ 4</td>
+                                <td><span class="currency">AED</span> 55</td>
+                                <td><span class="currency">AED</span> 72</td>
+                                <td><span class="currency">AED</span> 4</td>
                                 <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
                                 <td><button class="badge2 userledgerbtn ">USER DOCS</button></td>
                             </tr>
                             <tr>
                                 <td>Isabella White</td>
                                 <td>Intelliweb Technologies</td>
-                                <td>﷼ 20</td>
-                                <td>﷼ 54</td>
-                                <td>﷼ 10</td>
+                                <td><span class="currency">AED</span> 20</td>
+                                <td><span class="currency">AED</span> 54</td>
+                                <td><span class="currency">AED</span> 10</td>
                                 <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
                                 <td><button class="badge2 userledgerbtn">USER DOCS</button></td>
                             </tr>
                             <tr>
                                 <td>Ryan Miller</td>
                                 <td>Ideascape</td>
-                                <td>﷼ 15</td>
-                                <td>﷼ 38</td>
-                                <td>﷼ 11</td>
+                                <td><span class="currency">AED</span> 15</td>
+                                <td><span class="currency">AED</span> 38</td>
+                                <td><span class="currency">AED</span> 11</td>
                                 <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
                                 <td><button class="badge2 userledgerbtn ">USER DOCS</button></td>
                             </tr>
                             <tr>
                                 <td>Sarah Johnson</td>
                                 <td>RoboIntegrators</td>
-                                <td>﷼ 20</td>
-                                <td>﷼ 37</td>
-                                <td>﷼ 38</td>
+                                <td><span class="currency">AED</span> 20</td>
+                                <td><span class="currency">AED</span> 37</td>
+                                <td><span class="currency">AED</span> 38</td>
                                 <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
                                 <td><button class="badge2 userledgerbtn">USER DOCS</button></td>
                             </tr>
                             <tr>
                                 <td>Ryan Young</td>
                                 <td>DataMasters, Ltd.</td>
-                                <td>﷼ 36</td>
-                                <td>﷼ 20</td>
-                                <td>﷼ 20</td>
+                                <td><span class="currency">AED</span> 36</td>
+                                <td><span class="currency">AED</span> 20</td>
+                                <td><span class="currency">AED</span> 20</td>
                                 <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
                                 <td><button class="badge2 userledgerbtn">USER DOCS</button></td>
                             </tr>

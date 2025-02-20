@@ -12,14 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="{% static 'script.js' %}"></script>
 
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            
-        }
-
-    </style>
 </head>
 <body >
 
@@ -51,9 +43,11 @@
         <i class="fa-solid fa-code-branch"></i>
              Projects
     </a>
-
+    <a href="{% url 'logout' %}" class="nav-link logout">
+        <i class="fa-solid fa-door-open"></i>
+             Log Out
+    </a>
 </nav>
-<button class="logout-btn">Logout</button>
     </div>
 
 
@@ -84,58 +78,48 @@
 
         <div class="row card1">
 
-            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                <div class="card ">
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
+               
                     <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
                     <h6>Total Investments</h6>
                     <h4>91,42,405</h4>
                     <span class="aed-text">AED</span>
-                </div>
             </div>
-            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                <div class="card">
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
+               
                     <div class="icon"><i class="fas fa-dollar-sign"></i></div>
                     <h6>Total Returns</h6>
                     <h4>32,218</h4>
                     <span class="aed-text">AED</span>
-                </div>
             </div>
-            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                <div class="card">
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                     <div class="icon"><i class="fas fa-exchange-alt"></i></div>
                     <h6>Cash Circulation</h6>
                     <h4>25,64,789</h4>
                     <span class="aed-text">AED</span>
-                </div>
             </div>
         </div>
         
         <div class="row mt-3 card1">
 
-            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                <div class="card">
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                     <div class="icon"><i class="fas fa-percentage"></i></div>
                     <h6>Active Users</h6>
                     <h4>18%</h4>
                 </div>
-            </div>
         
-            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                <div class="card">
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                     <div class="icon"><i class="fas fa-project-diagram"></i></div>
                     <h6>Total Projects</h6>
                     <h4>4</h4>
                 </div>
-            </div>
-            <div class="col-lg-4 col-md-6 col-sm-12 col-12">
-                <div class="card">
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                     <div class="icon"><i class="fas fa-trash-alt"></i></div>
                     <h6>Total Withdrawals</h6>
                     <h4>25,598</h4>
                     <span class="aed-text">AED</span>
                 </div>
             </div>
-        </div>
 
         
        

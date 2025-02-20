@@ -14,14 +14,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="{% static 'script.js' %}"></script>
 
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            
-        }
-
-    </style>
 </head>
 <body >
 
@@ -33,10 +25,10 @@
         </div>
 <br><br><br><br>
 <nav class="sidebar-menu">
-    <a href="{% url 'admindashboard' %}" class="nav-link active">
+    <a href="{% url 'admindashboard' %}" class="nav-link">
         <i class="fa-solid fa-table-columns"></i> Dashboard
     </a>
-    <a href="{% url 'adminusers' %}" class="nav-link">
+    <a href="{% url 'adminusers' %}" class="nav-link active">
         <i class='fas fa-user-shield'></i>
 
         Admin & Users
@@ -53,9 +45,12 @@
         <i class="fa-solid fa-code-branch"></i>
              Projects
     </a>
+<a href="{% url 'logout' %}" class="nav-link logout">
+        <i class="fa-solid fa-door-open"></i>
+             Log Out
+    </a>
 </nav>
-<button class="logout-btn">Logout</button>
-    </div>
+</div>
 
 
     <!-- Toggle Button -->
@@ -152,8 +147,8 @@
                                     <td><button class="badge4" data-bs-toggle="modal" data-bs-target="#assignProjectModal">ADD</button>
 
                                     </td>
-                                    <td>﷼ 803</td>
-                                    <td>﷼ 65</td>
+                                    <td><span class="currency">AED</span> 803</td>
+                                    <td><span class="currency">AED</span> 65</td>
                                     <td><button class="badge3 ">ACTIVE</button></td>
                                     <td><span class="badge2 bg-danger">ADMIN</span></td>
                                 </tr>
@@ -166,8 +161,8 @@
                                     <td><button class="badge4" data-bs-toggle="modal" data-bs-target="#assignProjectModal">ADD</button>
 
                                     </td>
-                                    <td>﷼ 606</td>
-                                    <td>﷼ 65</td>
+                                    <td><span class="currency">AED</span> 606</td>
+                                    <td><span class="currency">AED</span> 65</td>
                                     <td><button class="badge2 ">PENDING</button></td>
                                     <td><span class="badge2 bg-primary">USER</span></td>
                                 </tr>
@@ -178,8 +173,8 @@
                                     <td>848 King Street, Arlington, TX 76010</td>
                                     <td>USA</td>
                                     <td><button class="badge4 ">ADD</button></td>
-                                    <td>﷼ 803</td>
-                                    <td>﷼ 65</td>
+                                    <td><span class="currency">AED</span> 803</td>
+                                    <td><span class="currency">AED</span> 65</td>
                                     <td><button class="badge3 ">ACTIVE</button></td>
                                     <td><span class="badge2 bg-primary">USER</span></td>
                                 </tr>
@@ -190,8 +185,8 @@
                                     <td>9343 Mountain Street, Milwaukee, WI 53206</td>
                                     <td>USA</td>
                                     <td><button class="badge4 ">ADD</button></td>
-                                    <td>﷼ 803</td>
-                                    <td>﷼ 65</td>
+                                    <td><span class="currency">AED</span> 803</td>
+                                    <td><span class="currency">AED</span> 65</td>
                                     <td><button class="badge2 ">PENDING</button></td>
                                     <td><span class="badge2 bg-primary">USER</span></td>
                                 </tr>
@@ -283,8 +278,8 @@
                         <tr>
                             <td>Smooze</td>
                             <td>12%</td>
-                            <td>﷼ 41</td>
-                            <td>﷼ 42</td>
+                            <td><span class="currency">AED</span> 41</td>
+                            <td><span class="currency">AED</span> 42</td>
                             <td><button class=" badge2 btn-sm"><i class="fa-solid fa-file-pen"></i> EDIT</button></td>
                         </tr>
                         <tr>

@@ -20,7 +20,7 @@ from mafazapp import views
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('pineapplepie/', admin.site.urls),
       path('', views.home, name='home'),
        path('mafazapp/', include('mafazapp.urls'))
 ]

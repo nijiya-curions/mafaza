@@ -4,7 +4,9 @@ from mafazapp import views
 
 urlpatterns = [
     path('signup/', views.signup, name='signup'),
-    path('login/', views.login, name='login'),
+     path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('pendingapproval/', views.pendingapproval, name='pendingapproval'),
     path('userdashboard/', views.userdashboard, name='userdashboard'),
     path('usertransaction/', views.usertransaction, name='usertransaction'),
     path('userprojects/', views.userprojects, name='userprojects'),
