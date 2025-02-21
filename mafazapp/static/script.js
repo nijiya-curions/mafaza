@@ -74,3 +74,5 @@ sidebar.style.display = "none";  // Hide Sidebar
 toggleButton.innerHTML = "☰";   // Change to Menu Button
 }
 });
+
+

@@ -215,9 +215,10 @@ body {
 
 @media screen and (max-width: 768px) {
     .maincard {
-        width: 100% !important;
+        width: 90% !important;
         padding: 20px;
         height: 250px;
+        margin-left: 50px;
     }
     
     .maincard h3 {
@@ -228,11 +229,13 @@ body {
         font-size: 20px;
     }
 }
-
-
-.text-center {
-    color: #003B1A;
-    font-weight: 700;
+@media screen and (max-width: 767px) {
+    .maincard {
+        width: 80%!important;
+        padding: 20px;
+        height: 250px;
+        margin-left: 30px;
+    }
 }
 
 @media screen and (max-width: 1440px) {
@@ -642,7 +645,7 @@ border-bottom: 1px solid #ddd;
 border-bottom: none;
 }
 /* cards */
-.card1 .card {
+/* .card1 .card {
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 10px;
@@ -661,7 +664,7 @@ border-bottom: none;
     position: relative;
     height: 150px;
     border: 3px solid goldenrod;
-}
+} */
 .currency{
     color: goldenrod;
     font-style: oblique;
@@ -1410,3 +1413,55 @@ margin-top: 5px;
 .login2 .error-message p {
 margin: 0;
 } 
+
+
+
+
+
+#profileUpdateModal .modal-backdrop {
+    background-color: transparent !important;
+    pointer-events: none; /* Allows clicks to pass through */
+}
+
+/* Your existing styles */
+#profileUpdateModal .profile-form {
+    padding: 20px;
+}
+
+#profileUpdateModal .form-group {
+    margin-bottom: 15px;
+}
+
+#profileUpdateModal .form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#profileUpdateModal .form-control:focus {
+    border-color: #b7952c;
+    outline: none;
+    box-shadow: 0 0 5px rgba(198, 176, 11, 0.5);
+}
+#profileUpdateModal .modal {
+    z-index: 1050 !important; /* Ensures it appears above everything */
+}
+
+#profileUpdateModal .modal-content {
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#profileUpdateModal .modal-header {
+    background-color: #b7952c;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+#profileUpdateModal .modal-title {
+    font-size: 20px;
+    font-weight: bold;
+}

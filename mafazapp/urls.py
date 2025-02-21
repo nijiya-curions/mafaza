@@ -15,6 +15,7 @@ urlpatterns = [
     path('admintransaction/', views.admintransaction, name='admintransaction'),
     path('userledger/', views.userledger, name='userledger'),
     path('adminprojects/', views.adminprojects, name='adminprojects'),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
 
 
 ]

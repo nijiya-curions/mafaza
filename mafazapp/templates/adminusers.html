@@ -167,6 +167,7 @@
                                 <th>RETURNS</th>
                                 <th>USER STATUS</th>
                                 <th>ADMIN STATUS</th>
+                                <th>REQUEST</th>  <!-- New Column for User Requests -->
                             </tr>
                         </thead>
                         <tbody>
@@ -191,7 +192,7 @@
                                         </button>
                                     </form>
                                 </td>
-                                
+                    
                                 <td>
                                     <form method="POST" action="{% url 'adminusers' %}">
                                         {% csrf_token %}
@@ -202,9 +203,69 @@
                                         </button>
                                     </form>
                                 </td>
-                                          
-                            </tr>
-                            {% endfor %}
+                 
+<!-- <td>
+    {% if user.has_requested %}
+        <form method="POST" action="{% url 'adminusers' %}">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <button type="submit" name="action" value="handle_request" class="btn btn-info">
+                View Request
+            </button>
+        </form>
+    {% else %}
+        <span class="text-muted">No Requests</span>
+    {% endif %}
+</td> -->
+<!-- View Request Button in Table -->
+<td>
+    {% if user.has_requested %}
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#resetPasswordModal{{ user.id }}">
+            View Request
+        </button>
+
+        <!-- Modal Popup for Password Reset -->
+        <div class="modal fade" id="resetPasswordModal{{ user.id }}" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password for {{ user.username }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{% url 'adminusers' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <input type="hidden" name="action" value="reset_password">
+
+                            <div class="mb-3">
+                                <label for="new_password_{{ user.id }}" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="new_password_{{ user.id }}" name="new_password" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="confirm_password_{{ user.id }}" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirm_password_{{ user.id }}" name="confirm_password" required>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Reset Password</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <span class="text-muted">No Requests</span>
+    {% endif %}
+</td>
+
+                    
+            </tr>
+               {% endfor %}
                         </tbody>
                     </table>
                     

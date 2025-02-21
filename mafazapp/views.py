@@ -19,6 +19,20 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
+from .models import PasswordResetRequest
+from django.contrib.auth.hashers import make_password
+
+from .forms import ForgotPasswordForm
+from .models import PasswordResetRequest
+
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .forms import UserProfileUpdateForm
+
 
 def home(request):
     return render(request,'home.html')
@@ -88,23 +102,76 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    request.session.flush()  # Clear the session entirely
-    return redirect('home')  # Redirect to login page
-
+    request.session.flush()
+    response = redirect('home')
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 def pendingapproval(request):
     return render(request,'pendingapproval.html')
 
-def user_required(user):
-    return user.is_authenticated and not user.is_staff  # Ensures only non-admin users can access
 
+
+def user_required(user):
+    return user.is_authenticated and not user.is_staff
 user_login_required = user_passes_test(user_required, login_url='home')
 
+
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+
+
 # user dashboard
-@never_cache
+
+@login_required
 @user_login_required
+
 def userdashboard(request):
-    return render(request,'userdashboard.html')
+    user = request.user  # Get the logged-in user
+    form = UserProfileUpdateForm(instance=user)
+
+    if request.method == "POST":
+        form = UserProfileUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            updated_user = form.save(commit=False)  # Don't commit yet
+
+            # Check if username, email, or password was changed
+            username_changed = updated_user.username != user.username
+            email_changed = updated_user.email != user.email
+            password_changed = form.cleaned_data.get("password") != ""
+
+            updated_user.save()  # Now save the changes
+
+            # If username, email, or password changed, re-authenticate the user
+            if username_changed or email_changed or password_changed:
+                user = authenticate(
+                    request, username=updated_user.username, password=form.cleaned_data.get("password") or user.password
+                )
+                if user:
+                    login(request, user)  # Log them in with updated credentials
+                    messages.success(request, "Profile updated! Please log in again.")
+                    return redirect("login")  # Redirect to login page for security
+
+            messages.success(request, "Profile updated successfully!")
+            return redirect("userdashboard")  # Refresh the page
+
+    return render(request, "userdashboard.html", {"form": form})
+
+
+
+
+
+
+
+
+
+# @never_cache
+# @user_login_required
+# def userdashboard(request):
+#     return render(request,'userdashboard.html')
 
 # user transaction
 @never_cache
@@ -121,19 +188,23 @@ def userprojects(request):
 # admin side
 
 # admin dashbaord
-def admin_required(user):
-    return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def admindashboard(request):
-    return render(request,'admindashboard.html')
+    user = request.user  # Get the logged-in admin
+    if request.method == "POST" and "update_profile" in request.POST:
+        form = UserProfileUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('admindashboard')  # Redirect after successful update
+    else:
+        form = UserProfileUpdateForm(instance=user)
+
+    return render(request, 'admindashboard.html', {'form': form})
 
 
 # admin users
-def admin_required(user):
-    return user.is_authenticated and user.is_staff
-
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def adminusers(request):
@@ -152,29 +223,15 @@ def adminusers(request):
     # Get only pending users
     pending_users = users.filter(is_approved=False)
 
-    # Filter approved users by search query
-    if search_query:
-        approved_users = approved_users.filter(
-            Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query) |
-            Q(email__icontains=search_query)
-        )
-
-    # Filter approved users by user type
-    if user_type == 'Admin':
-        approved_users = approved_users.filter(is_staff=True)
-    elif user_type == 'User':
-        approved_users = approved_users.filter(is_staff=False)
-
-    # Sort approved users by first name
-    approved_users = approved_users.order_by('first_name')
+    # Get users who have requested password reset
+    requested_users = approved_users.filter(has_requested=True)
 
     # Paginate approved users
     paginator = Paginator(approved_users, 2)
     page_number = request.GET.get('page')
     page_users = paginator.get_page(page_number)
 
-    # Handle User Activation / Deactivation & Role Change
+    # Handle User Actions
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
         action = request.POST.get('action')
@@ -194,129 +251,42 @@ def adminusers(request):
                 return redirect('adminusers')
 
             elif action == 'promote':  # Promote to Admin (Staff)
-                if not user.is_staff:
-                    user.is_staff = True
-                    user.save()
-                    messages.success(request, f"User {user.username} has been promoted to Admin.")
-                else:
-                    messages.error(request, "User is already an Admin.")
+                user.is_staff = True
+                user.save()
+                messages.success(request, f"User {user.username} has been promoted to Admin.")
 
             elif action == 'demote':  # Demote from Admin to Regular User
-                if user.is_staff:
-                    user.is_staff = False
+                user.is_staff = False
+                user.save()
+                messages.success(request, f"User {user.username} has been demoted to a regular user.")
+
+            elif action == 'reset_password':  # Admin sets a new password
+                new_password = request.POST.get('new_password')
+                confirm_password = request.POST.get('confirm_password')
+
+                if new_password and new_password == confirm_password:
+                    user.set_password(new_password)
+                    user.has_requested = False  # Mark request as handled
                     user.save()
-                    messages.success(request, f"User {user.username} has been demoted to a regular user.")
+
+                    messages.success(request, f"Password for {user.username} has been reset successfully.")
                 else:
-                    messages.error(request, "User is not an Admin.")
+                    messages.error(request, "Passwords do not match.")
+
+                return redirect('adminusers')
 
         else:
             messages.error(request, "You do not have permission to perform this action.")
 
     return render(request, 'adminusers.html', {
-        'users': page_users,  # Paginated approved users
-        'pending_users': pending_users,  # List of pending users
+        'users': page_users,
+        'pending_users': pending_users,
+        'requested_users': requested_users,
         'search_query': search_query,
         'user_type': user_type
     })
 
-# def adminusers(request):
-#     User = get_user_model()
-
-#     # Get the search query from the GET request
-#     search_query = request.GET.get('search', '')
-
-#     # Filter users based on the search query
-#     if search_query:
-#         users = User.objects.exclude(is_superuser=True).filter(
-#             first_name__icontains=search_query
-#         ) | User.objects.exclude(is_superuser=True).filter(
-#             last_name__icontains=search_query
-#         )
-#     else:
-#         users = User.objects.exclude(is_superuser=True)
-
-#     # Sort users: Show not activated (is_approved=False) first, then activated users
-#     users = users.order_by('is_approved', 'first_name')
-
-#     # Pagination: Show 10 users per page
-#     paginator = Paginator(users, 10)
-#     page_number = request.GET.get('page')
-#     page_users = paginator.get_page(page_number)
-
-#     if request.method == 'POST':
-#         user_id = request.POST.get('user_id')
-#         action = request.POST.get('action')
-
-#         try:
-#             user = User.objects.get(id=user_id)
-#         except User.DoesNotExist:
-#             messages.error(request, "User not found.")
-#             return redirect('adminusers')
-
-#         # Only staff users can promote/demote other users
-#         if request.user.is_staff:
-#             if action == 'confirm_toggle':
-#                 user.is_approved = not user.is_approved
-#                 user.save()
-#                 status = "activated" if user.is_approved else "deactivated"
-#                 messages.success(request, f"User {user.username} has been {status}.")
-#                 return redirect('adminusers')
-#             elif action == 'promote':  # Promote to staff
-#                 if not user.is_staff:
-#                     user.is_staff = True
-#                     user.save()
-#                     messages.success(request, f"User {user.username} has been promoted to Staff.")
-#                 else:
-#                     messages.error(request, "User is already a Staff member.")
-#             elif action == 'demote':  # Demote from staff
-#                 if user.is_staff:
-#                     user.is_staff = False
-#                     user.save()
-#                     messages.success(request, f"User {user.username} has been demoted to a regular user.")
-#                 else:
-#                     messages.error(request, "User is not a Staff member.")
-#         else:
-#             messages.error(request, "You do not have permission to perform this action.")
-#             return redirect('adminusers')
-
-#     return render(request, 'adminusers.html', {
-#         'users': page_users,  # Paginated users
-#         'search_query': search_query
-#     })
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # admin transaction
-def admin_required(user):
-    return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
@@ -324,8 +294,6 @@ def admintransaction(request):
     return render(request,'admintransaction.html')
 
 # admin user ledger
-def admin_required(user):
-    return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
@@ -333,16 +301,35 @@ def userledger(request):
     return render(request,'userledger.html')
 
 # admin projects
-def admin_required(user):
-    return user.is_authenticated and user.is_staff
-
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def adminprojects(request):
     return render(request,'adminprojects.html')
 
+# forgot password
 
+User = get_user_model()
 
+def forgot_password(request):
+    if request.method == "POST":
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email_or_username = form.cleaned_data["email_or_username"]
+            user = User.objects.filter(email=email_or_username).first() or User.objects.filter(username=email_or_username).first()
 
+            if user:
+                # Create the password reset request
+                PasswordResetRequest.objects.create(user=user)
+
+                # Ensure has_requested is updated
+                user.has_requested = True
+                user.save()
+
+                messages.success(request, "Password reset request sent. An admin will review it.")
+                return redirect("login")
+    else:
+        form = ForgotPasswordForm()
+
+    return render(request, "forgot_password.html", {"form": form})
 
     
