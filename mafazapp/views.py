@@ -1,9 +1,7 @@
 from django.shortcuts import render
-from .forms import SignupForm
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from .models import CustomUser
 from django.contrib.auth import logout
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import user_passes_test
@@ -11,27 +9,16 @@ from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.contrib import messages
 
+from django.contrib.auth.decorators import login_required
 
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.core.paginator import Paginator
 from django.db.models import Q
-from django.contrib.auth import get_user_model
 
 from .models import PasswordResetRequest
 from django.contrib.auth.hashers import make_password
 
-from .forms import ForgotPasswordForm
-from .models import PasswordResetRequest
-
-
-
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .forms import UserProfileUpdateForm
+from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProfileUpdateForm,ForgotPasswordForm,TransactionForm
+from .models import InvestmentProject,PasswordResetRequest,CustomUser
+from django.utils.timezone import now
 
 
 def home(request):
@@ -128,7 +115,6 @@ def admin_required(user):
 
 @login_required
 @user_login_required
-
 def userdashboard(request):
     user = request.user  # Get the logged-in user
     form = UserProfileUpdateForm(instance=user)
@@ -161,23 +147,31 @@ def userdashboard(request):
     return render(request, "userdashboard.html", {"form": form})
 
 
-
-
-
-
-
-
-
-# @never_cache
-# @user_login_required
-# def userdashboard(request):
-#     return render(request,'userdashboard.html')
-
 # user transaction
 @never_cache
 @user_login_required
 def usertransaction(request):
-    return render(request,'usertransaction.html')
+    if request.method == "POST":
+        form = UserTransactionForm(request.POST, request.FILES)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.user = request.user  # Assign the logged-in user
+            transaction.save()
+            messages.success(request, "Transaction added successfully")
+            return redirect("usertransaction")
+        else:
+            messages.error(request, "Error adding transaction")
+    else:
+        form = UserTransactionForm()
+
+    context = {
+        "form": form,  # Ensure form is always passed
+        "today_date": now().strftime("%d %b %Y"),
+        "projects": InvestmentProject.objects.all(),
+    }
+
+    return render(request, "usertransaction.html", context)
+
 
 # user projects
 @never_cache
@@ -210,28 +204,19 @@ def admindashboard(request):
 def adminusers(request):
     User = get_user_model()
 
-    # Get search query and user type filter
     search_query = request.GET.get('search', '')
     user_type = request.GET.get('user_type', '')
-
-    # Base query: Exclude superusers
     users = User.objects.exclude(is_superuser=True)
 
-    # Get only approved users
     approved_users = users.filter(is_approved=True)
 
-    # Get only pending users
     pending_users = users.filter(is_approved=False)
 
-    # Get users who have requested password reset
     requested_users = approved_users.filter(has_requested=True)
-
-    # Paginate approved users
     paginator = Paginator(approved_users, 2)
     page_number = request.GET.get('page')
     page_users = paginator.get_page(page_number)
 
-    # Handle User Actions
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
         action = request.POST.get('action')
@@ -291,7 +276,29 @@ def adminusers(request):
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def admintransaction(request):
-    return render(request,'admintransaction.html')
+    if request.method == "POST":
+        form = TransactionForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Transaction added successfully")
+            return redirect("admintransaction")
+        else:
+            messages.error(request, "Error adding transaction")
+    else:
+        form = TransactionForm()
+
+    # Fetching projects
+    projects = InvestmentProject.objects.all()
+    print("Projects:", projects) 
+
+    context = {
+        "form": form,
+        "today_date": now().strftime("%d %b %Y"),
+        "users": User.objects.all(),
+        "projects": projects,
+    }
+
+    return render(request, "admintransaction.html", context)
 
 # admin user ledger
 
@@ -304,8 +311,16 @@ def userledger(request):
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def adminprojects(request):
-    return render(request,'adminprojects.html')
+    if request.method == "POST":
+        form = InvestmentProjectForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('adminprojects')  # Refresh page after submission
+    else:
+        form = InvestmentProjectForm()
 
+    projects = InvestmentProject.objects.all()  # Fetch existing projects
+    return render(request, 'adminprojects.html', {'form': form, 'projects': projects})
 # forgot password
 
 User = get_user_model()

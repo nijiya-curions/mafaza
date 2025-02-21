@@ -543,8 +543,9 @@ body {
     }
     .sidebar .logo {
         position: absolute;
-        top: 10px;
-        left: 25px;
+        width: 50%;
+        top: 20px;
+        left: 55px;
     }
     
     .logout-btn {
@@ -885,7 +886,10 @@ width: 300px;
     background: #5CA4FF; 
     color: white;
 }
-
+.badge1 {
+    background: #CC582AFF; 
+    color: white;
+}
 
  .badge2 {
     background: #d4af37;

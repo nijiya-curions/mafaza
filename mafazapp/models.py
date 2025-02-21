@@ -38,3 +38,53 @@ class PasswordResetRequest(models.Model):
 
     def __str__(self):
         return f"Reset Request - {self.user.username}"
+
+
+
+class InvestmentProject(models.Model):
+    project_name = models.CharField(max_length=255)
+    total_investment = models.DecimalField(max_digits=15, decimal_places=2)
+    min_roi = models.DecimalField(max_digits=5, decimal_places=2, help_text="Minimum Return on Investment (%)")
+    max_roi = models.DecimalField(max_digits=5, decimal_places=2, help_text="Maximum Return on Investment (%)")
+    project_description = models.TextField()
+    images = models.ImageField(upload_to='project_images/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.project_name
+  
+
+
+class Transaction(models.Model):
+    TRANSACTION_TYPES = [
+        ('investment', 'Investment'),
+        ('withdrawal', 'Withdrawal'),
+    ]
+
+    date = models.DateField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    project = models.ForeignKey(InvestmentProject, on_delete=models.CASCADE)
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    narration = models.TextField()
+    receipt = models.ImageField(upload_to='receipts/', blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.transaction_type} - {self.amount}"
+
+
+
+class UserProjectAssignment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(InvestmentProject,on_delete=models.CASCADE,related_name='assigned_users')
+    roi = models.DecimalField(max_digits=5, decimal_places=2,blank=True, null=True,help_text="Custom roi")
+
+    def get_effective_return(self):
+        """Return the assigned percentage or default to project's percentage."""
+        if self.return_percentage is not None:
+            return self.return_percentage
+        return self.project.fixed_return_percentage if self.project.return_type == 'fixed' else self.project.min_return_percentage
+
+    def __str__(self):
+        return f"{self.user.username} - {self.project.project_name} ({self.get_effective_return()}%)"
+    

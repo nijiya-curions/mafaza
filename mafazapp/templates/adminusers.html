@@ -204,19 +204,7 @@
                                     </form>
                                 </td>
                  
-<!-- <td>
-    {% if user.has_requested %}
-        <form method="POST" action="{% url 'adminusers' %}">
-            {% csrf_token %}
-            <input type="hidden" name="user_id" value="{{ user.id }}">
-            <button type="submit" name="action" value="handle_request" class="btn btn-info">
-                View Request
-            </button>
-        </form>
-    {% else %}
-        <span class="text-muted">No Requests</span>
-    {% endif %}
-</td> -->
+
 <!-- View Request Button in Table -->
 <td>
     {% if user.has_requested %}

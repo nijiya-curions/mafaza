@@ -75,59 +75,61 @@
 
 
 
-
- <!-- Request New Transaction Section -->
- <div class="container-fluid requestcontainer">
+<!-- Request New Transaction Section -->
+<div class="container-fluid requestcontainer">
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <h5 class="fw-bold text-uppercase"><i class="fas fa-file-alt"></i>  Add Projects</h5>
+                <h5 class="fw-bold text-uppercase"><i class="fas fa-file-alt"></i> Add Projects</h5>
 
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-12">
-                        <label>Project Name</label>
-                        <input type="text" class="form-control bg-light" placeholder="Input text">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>Project Name</label>
+                            <input type="text" name="project_name" class="form-control bg-light" placeholder="Enter project name" required>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>Total Investment</label>
+                            <input type="number" name="total_investment" class="form-control bg-light" placeholder="Enter amount" required>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>Min ROI (%)</label>
+                            <input type="number" name="min_roi" class="form-control bg-light" placeholder="Enter min ROI" step="0.01" required>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>Max ROI (%)</label>
+                            <input type="number" name="max_roi" class="form-control bg-light" placeholder="Enter max ROI" step="0.01" required>
+                        </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12">
-                        <label>Total Investment</label>
-                        <input type="text" class="form-control bg-light" placeholder="Input text">
+            
+                    <br>
+            
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label>Project Description</label>
+                            <textarea name="project_description" class="form-control bg-light" placeholder="Enter description" rows="3" required></textarea>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label>Upload Images</label>
+                            <div class="p-3 text-center adminprojectfile bg-light" onclick="document.getElementById('projectImageUpload').click()">
+                                <p class="mb-1">Drop files here</p>
+                                <small class="text-muted">Supported format: PNG, JPG</small>
+                                <input type="file" id="projectImageUpload" name="images" class="form-control bg-light d-none" accept="image/png, image/jpeg">
+                            </div>                            
+                        </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12">
-                        <label>Min ROI</label>
-                        <input type="text" class="form-control bg-light" placeholder="Input text">
+       
+                    <br>
+                    <div class="text-end">
+                        <button type="submit" class="btn csv-btn px-4">SUBMIT</button>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-12">
-                        <label>Max ROI</label>
-                        <input type="text" class="form-control bg-light" placeholder="Input text">
-                    </div>
-                </div>
-        
-                <br>
-        
-                <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-12">
-                        <label>Project Description</label>
-                        <textarea class="form-control bg-light" placeholder="Input text" rows="3"></textarea>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-12">
-                        <label>Upload Images</label>
-                        <div class="p-3 text-center adminprojectfile bg-light" >
-                            <p class="mb-1">Drop files here</p>
-                            <small class="text-muted">Supported format: PNG, JPG</small>  </div>
-                       
-                            <div class="d-flex  mt-2">
-                                <img src="{% static 'images/mimg1.jpg' %}" alt="Icon 1" width="40" class="me-2">
-                                <img src="{% static 'images/mimg2.jpg' %}" alt="Icon 2" width="40">
-                            </div>
-                      </div>
-                <br>
-                <div class="text-end">
-                    <button class="btn csv-btn px-4">SUBMIT</button>
-                </div>
+                </form>
             </div>
         </div>
-
-            <br>
+    </div>
+    <br>
+</div>
 
 
 <!-- Current Projects Section -->

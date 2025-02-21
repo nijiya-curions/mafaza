@@ -40,7 +40,6 @@
 </nav>
 </div>
 
-
  <!-- Toggle Button -->
 <button class="sidebar-toggle" id="toggleSidebar">☰ </button>
 
@@ -67,31 +66,38 @@
                     <h4><i class="fas fa-file-alt"></i> REQUEST NEW TRANSACTION</h4>
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-sm-12">
-                            <form>
+
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
                             <label>Date</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                <input type="text" class="form-control" placeholder="09 Feb 2021" readonly>
+                                <input type="text" class="form-control" value="{{ today_date }}" readonly>
                             </div>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12 ">
                             <label>Amount</label>
-                            <input type="text" class="form-control form-control1" placeholder="Input text">
+                            <input type="text" class="form-control form-control1"  value="{{ form.amount.value|default:'' }}"  placeholder="Input text">
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Project</label>
                             <select class="form-control">
-                                <option selected>Projects</option>
-                                <option>Project 1</option>
-                                <option>Project 2</option>
+                                <option value="{{ project.id }}" {% if form.project.value == project.id %}selected{% endif %}>
+                                    {{ project.project_name }}
+                                </option>
+                            
+                                <option disabled>No projects available</option>
+                           
                             </select>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Transaction Type</label>
-                            <select class="form-control">
-                                <option selected>Type</option>
-                                <option>Investment</option>
-                                <option>Withdrawal</option>
+                            <select name="transaction_type" class="form-control">
+                                {% for type, label in form.transaction_type.field.choices %}
+                <option value="{{ type }}" {% if form.transaction_type.value == type %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -99,19 +105,21 @@
                     <div class="row">
                         <div class="col-md-6 col-sm-12">
                             <label>Narration</label>
-                            <input type="text" class="form-control form-control1" placeholder="Input text">
+                            <input type="text" class="form-control form-control1" value="{{ form.narration.value|default:'' }}" placeholder="Input text">
                         </div>
                         <div class="col-md-6 col-sm-12">
                             <label>Upload Receipt</label>
-                            <div class="upload-box">
+                            <div class="upload-box" onclick="document.getElementById('receiptUpload').click()">
                                 <p>Drop files here</p>
                                 <small>Supported format: PNG, JPG</small>
+                                <input type="file" name="receipt" id="receiptUpload" class="d-none" accept="image/png, image/jpeg">
                             </div>
+                            
                         </div>
                     </div>
                     <br>
                     <div class="text-end">
-                        <button class="csv-btn">SUBMIT</button>
+                        <button type="submit" class="csv-btn">SUBMIT</button>
                     </div>
                 </form>
                 </div>
@@ -147,7 +155,7 @@
                                 <td>-</td>
                                 <td>56 د.إ</td>
                                 <td><a href="#">VIEW RECEIPT</a></td>
-                                <td><button class="badge1 ">Rejected</button></td>
+                                <td><button class="badge1">Rejected</button></td>
                             </tr>
                             <tr>
                                 <td>31-Oct-2021</td>
@@ -164,9 +172,6 @@
                 </div>
             </div>
         </div>
-
-
-                
         <div class="row mt-4">
             <div class="col-6" >
                 <p>63 results</p>
@@ -177,16 +182,13 @@
                 <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
                 <li class="page-item active"><a class="page-link" href="#">1</a></li>
                 <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">4</a></li>
-                <li class="page-item"><a class="page-link" href="#">...</a></li>
-                <li class="page-item"><a class="page-link" href="#">10</a></li>
-                <li class="page-item"><a class="page-link" href="#">11</a></li>
                 <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
             </ul>
-        </nav>   </div></div>
+        </nav>  
+     </div>
+    </div>
 
-            </div>
+</div>
             <script>
                 // JavaScript for Sidebar Toggle
         document.getElementById("toggleSidebar").addEventListener("click", function() {

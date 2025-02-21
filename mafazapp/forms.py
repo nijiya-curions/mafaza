@@ -1,7 +1,9 @@
 from django import forms
-from .models import CustomUser
+from .models import CustomUser,InvestmentProject,Transaction,UserProjectAssignment
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
+from django.contrib.auth import get_user_model
+
 
 class SignupForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -85,3 +87,39 @@ class UserProfileUpdateForm(forms.ModelForm):
             user.save()
 
         return user
+
+
+# project form
+class InvestmentProjectForm(forms.ModelForm):
+    class Meta:
+        model = InvestmentProject
+        fields = ['project_name', 'total_investment', 'min_roi', 'max_roi', 'project_description', 'images']
+        widgets = {
+            'project_description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }
+
+
+class TransactionForm(forms.ModelForm):
+    User = get_user_model() 
+    
+    class Meta:
+        model = Transaction
+        fields = ['user', 'amount', 'project', 'transaction_type', 'narration', 'receipt']
+
+
+class UserTransactionForm(forms.ModelForm):
+    class Meta:
+        model= Transaction
+        fields = ['amount', 'project', 'transaction_type', 'narration', 'receipt']
+
+
+
+class UserProjectAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = UserProjectAssignment
+        fields = ['user', 'project', 'roi']
+
+    def __init__(self, *args, **kwargs):
+        super(UserProjectAssignmentForm, self).__init__(*args, **kwargs)
+        self.fields['roi'].widget.attrs.update({'placeholder': 'Enter ROI (optional)'})
+        

@@ -1,6 +1,8 @@
 from django.urls import path
 from mafazapp import views
 
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('signup/', views.signup, name='signup'),
@@ -18,4 +20,4 @@ urlpatterns = [
     path('forgot-password/', views.forgot_password, name='forgot_password'),
 
 
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
