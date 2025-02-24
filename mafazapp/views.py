@@ -17,7 +17,7 @@ from .models import PasswordResetRequest
 from django.contrib.auth.hashers import make_password
 
 from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProfileUpdateForm,ForgotPasswordForm,TransactionForm,UserDocumentForm
-from .models import InvestmentProject,PasswordResetRequest,CustomUser,UserDocument
+from .models import InvestmentProject,PasswordResetRequest,CustomUser,UserDocument,UserProjectAssignment
 from django.utils.timezone import now
 
 
@@ -147,9 +147,10 @@ def userdashboard(request):
     return render(request, "userdashboard.html", {"form": form})
 
 
-# user transaction
-@never_cache
+# user transaction 
+
 @user_login_required
+@never_cache
 def usertransaction(request):
     if request.method == "POST":
         form = UserTransactionForm(request.POST, request.FILES)
@@ -164,22 +165,25 @@ def usertransaction(request):
     else:
         form = UserTransactionForm()
 
+    # Filter projects assigned to the logged-in user
+    assigned_projects = InvestmentProject.objects.filter(assigned_users__user=request.user)
+
     context = {
         "form": form,  # Ensure form is always passed
         "today_date": now().strftime("%d %b %Y"),
-        "projects": InvestmentProject.objects.all(),
+        "projects": assigned_projects,  # Pass the filtered projects to the template
     }
 
     return render(request, "usertransaction.html", context)
 
+# admin side
 
-# user projects
+ # user projects
 @never_cache
 @user_login_required
 def userprojects(request):
     return render(request,'userprojects.html')
 
-# admin side
 
 # admin dashbaord
 
@@ -209,13 +213,13 @@ def adminusers(request):
     users = User.objects.exclude(is_superuser=True)
 
     approved_users = users.filter(is_approved=True)
-
     pending_users = users.filter(is_approved=False)
-
     requested_users = approved_users.filter(has_requested=True)
     paginator = Paginator(approved_users, 2)
     page_number = request.GET.get('page')
     page_users = paginator.get_page(page_number)
+
+    projects = InvestmentProject.objects.all()  # Get all projects
 
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
@@ -228,32 +232,31 @@ def adminusers(request):
             return redirect('adminusers')
 
         if request.user.is_staff:
-            if action == 'confirm_toggle':  # Activate / Deactivate User
+            if action == 'confirm_toggle':
                 user.is_approved = not user.is_approved
                 user.save()
                 status = "activated" if user.is_approved else "deactivated"
                 messages.success(request, f"User {user.username} has been {status}.")
                 return redirect('adminusers')
 
-            elif action == 'promote':  # Promote to Admin (Staff)
+            elif action == 'promote':
                 user.is_staff = True
                 user.save()
                 messages.success(request, f"User {user.username} has been promoted to Admin.")
 
-            elif action == 'demote':  # Demote from Admin to Regular User
+            elif action == 'demote':
                 user.is_staff = False
                 user.save()
                 messages.success(request, f"User {user.username} has been demoted to a regular user.")
 
-            elif action == 'reset_password':  # Admin sets a new password
+            elif action == 'reset_password':
                 new_password = request.POST.get('new_password')
                 confirm_password = request.POST.get('confirm_password')
 
                 if new_password and new_password == confirm_password:
                     user.set_password(new_password)
-                    user.has_requested = False  # Mark request as handled
+                    user.has_requested = False
                     user.save()
-
                     messages.success(request, f"Password for {user.username} has been reset successfully.")
                 else:
                     messages.error(request, "Passwords do not match.")
@@ -268,8 +271,9 @@ def adminusers(request):
         'pending_users': pending_users,
         'requested_users': requested_users,
         'search_query': search_query,
-        'user_type': user_type
-    }) 
+        'user_type': user_type,
+        'projects': projects  # Pass the projects to the template
+    })
 
 
 # admin transaction
@@ -306,15 +310,13 @@ def admintransaction(request):
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def userledger(request):
-    User = get_user_model()
-    users = User.objects.exclude(is_superuser=True)  # Fetch users (excluding superusers)
-    return render(request, 'userledger.html', {'users': users})
+    return render(request,'userledger.html')
 
 # admin projects
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def adminprojects(request):
-    if request.method == "POST":
+    if request.method == "POST":   
         form = InvestmentProjectForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
@@ -324,6 +326,7 @@ def adminprojects(request):
 
     projects = InvestmentProject.objects.all()  # Fetch existing projects
     return render(request, 'adminprojects.html', {'form': form, 'projects': projects})
+
 # forgot password
 
 User = get_user_model()
@@ -431,3 +434,46 @@ def delete_document(request, document_id):
     return redirect('document_list')
 
 
+# assigning
+def assign_project(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        project_id = request.POST.get('project_id')
+        roi = request.POST.get('roi')
+
+        user = get_object_or_404(get_user_model(), id=user_id)
+        project = get_object_or_404(InvestmentProject, id=project_id)
+
+        assignment, created = UserProjectAssignment.objects.get_or_create(user=user, project=project)
+        assignment.roi = roi
+        assignment.save()
+
+        messages.success(request, f"Project {project.project_name} assigned to {user.username} with ROI {roi}.")
+        return redirect('adminusers')
+    else:
+        return redirect('adminusers')
+    
+
+
+
+
+
+
+
+
+
+from django.http import JsonResponse
+from .models import UserProjectAssignment
+
+def fetch_assigned_projects(request, user_id):
+    assignments = UserProjectAssignment.objects.filter(user_id=user_id).select_related('project')
+    projects = [
+        {
+            'project_name': assignment.project.project_name,
+            'roi': assignment.roi or assignment.project.fixed_return_percentage,
+            'total_investment': assignment.project.total_investment,  # Assuming you have this field
+            'total_return': assignment.project.total_return  # Assuming you have this field
+        }
+        for assignment in assignments
+    ]
+    return JsonResponse({'projects': projects})

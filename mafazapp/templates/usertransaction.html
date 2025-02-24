@@ -81,13 +81,15 @@
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Project</label>
-                            <select class="form-control">
+                            <select name="project" class="form-control">
+                                {% for project in projects %}
                                 <option value="{{ project.id }}" {% if form.project.value == project.id %}selected{% endif %}>
                                     {{ project.project_name }}
                                 </option>
-                            
+                                {% endfor %}
+                                {% if not projects %}
                                 <option disabled>No projects available</option>
-                           
+                                {% endif %}
                             </select>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">

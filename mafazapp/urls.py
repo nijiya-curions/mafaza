@@ -19,10 +19,11 @@ urlpatterns = [
     path('userledger/', views.userledger, name='userledger'),
     path('adminprojects/', views.adminprojects, name='adminprojects'),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
-    # path('assign-project/', views.assign_project, name='assign_project'),
     path('documents/', views.document_list, name='document_list'),
     path('delete-document/<int:document_id>/', views.delete_document, name='delete_document'),
 
+  path('assign_project/', views.assign_project, name='assign_project'),
+    path('fetch_assigned_projects/<int:user_id>/', views.fetch_assigned_projects, name='fetch_assigned_projects'),
 
 # 
     path('admin/users/<uuid:user_id>/documents/', views.admin_user_documents, name='admin_user_documents'),
