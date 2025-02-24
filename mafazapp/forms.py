@@ -123,3 +123,11 @@ class UserProjectAssignmentForm(forms.ModelForm):
         super(UserProjectAssignmentForm, self).__init__(*args, **kwargs)
         self.fields['roi'].widget.attrs.update({'placeholder': 'Enter ROI (optional)'})
         
+
+
+from .models import UserDocument
+
+class UserDocumentForm(forms.ModelForm):
+    class Meta:
+        model = UserDocument
+        fields = ['document_type', 'file']

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.views.decorators.cache import never_cache
@@ -16,8 +16,8 @@ from django.db.models import Q
 from .models import PasswordResetRequest
 from django.contrib.auth.hashers import make_password
 
-from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProfileUpdateForm,ForgotPasswordForm,TransactionForm
-from .models import InvestmentProject,PasswordResetRequest,CustomUser
+from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProfileUpdateForm,ForgotPasswordForm,TransactionForm,UserDocumentForm
+from .models import InvestmentProject,PasswordResetRequest,CustomUser,UserDocument
 from django.utils.timezone import now
 
 
@@ -269,7 +269,8 @@ def adminusers(request):
         'requested_users': requested_users,
         'search_query': search_query,
         'user_type': user_type
-    })
+    }) 
+
 
 # admin transaction
 
@@ -305,7 +306,9 @@ def admintransaction(request):
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def userledger(request):
-    return render(request,'userledger.html')
+    User = get_user_model()
+    users = User.objects.exclude(is_superuser=True)  # Fetch users (excluding superusers)
+    return render(request, 'userledger.html', {'users': users})
 
 # admin projects
 @user_passes_test(admin_required, login_url='home')
@@ -348,3 +351,83 @@ def forgot_password(request):
     return render(request, "forgot_password.html", {"form": form})
 
     
+
+# document for admin
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
+def admin_user_documents(request, user_id):
+    User = get_user_model()
+    """Admin can view and download documents uploaded by a user."""
+    user = get_object_or_404(User, id=user_id)
+    documents = UserDocument.objects.filter(user=user)
+
+    return render(request, 'admin_user_documents.html', {'user': user, 'documents': documents})
+
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
+def admin_delete_document(request, document_id):
+    """Admin can delete a user's document."""
+    document = get_object_or_404(UserDocument, id=document_id)
+    document.file.delete()  # Deletes the file from storage
+    document.delete()
+    messages.success(request, "Document deleted successfully.")
+    return redirect('admin_user_documents', user_id=document.user.id)
+
+
+
+
+# document section for users
+
+
+def document_list(request):
+    """List all documents and handle document uploads and edits in the same view."""
+    documents = UserDocument.objects.filter(user=request.user)
+    form = UserDocumentForm()
+    edit_form = None
+    document_to_edit = None
+
+    if request.method == 'POST':
+        # Check if it's an edit request
+        document_id = request.POST.get('edit_document_id')
+
+        if document_id:
+            document_to_edit = get_object_or_404(UserDocument, id=document_id, user=request.user)
+            edit_form = UserDocumentForm(request.POST, request.FILES, instance=document_to_edit)
+
+            if edit_form.is_valid():
+                edit_form.save()
+                return redirect('document_list')  # Redirect after edit
+
+        else:
+            # This is a new document upload
+            form = UserDocumentForm(request.POST, request.FILES)
+            if form.is_valid():
+                document = form.save(commit=False)
+                document.user = request.user
+                document.save()
+                return redirect('document_list')  # Redirect after upload
+
+    # Handle edit request (GET request for edit form)
+    document_id = request.GET.get('edit')
+    if document_id:
+        document_to_edit = get_object_or_404(UserDocument, id=document_id, user=request.user)
+        edit_form = UserDocumentForm(instance=document_to_edit)
+
+    return render(request, 'document_list.html', {
+        'documents': documents,
+        'form': form,
+        'edit_form': edit_form,
+        'document_to_edit': document_to_edit
+    })
+
+
+def delete_document(request, document_id):
+    """Allow users to delete their uploaded documents."""
+    document = get_object_or_404(UserDocument, id=document_id, user=request.user)
+    document.file.delete()  # Delete the actual file from storage
+    document.delete()
+    return redirect('document_list')
+
+

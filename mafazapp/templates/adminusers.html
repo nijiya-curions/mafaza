@@ -178,8 +178,11 @@
                                 <td>{{ user.phone_number }}</td>
                                 <td>{{ user.address }}</td>
                                 <td>{{ user.country }}</td>
-                                <td><button class="badge4" data-bs-toggle="modal" data-bs-target="#assignProjectModal">ADD</button></td>
-                                <td><span class="currency">AED</span> 0</td> 
+                                <td><button class="badge4 assign-btn" data-bs-toggle="modal" data-bs-target="#assignProjectModal" data-user-id="{{ user.id }}" data-username="{{ user.username }}">
+                                        ADD
+                                    </button>
+                                </td>
+                                                                <td><span class="currency">AED</span> 0</td> 
                                 <td><span class="currency">AED</span> 0</td> 
                     
                                 <td>
@@ -211,7 +214,7 @@
         <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#resetPasswordModal{{ user.id }}">
             View Request
         </button>
-
+    
         <!-- Modal Popup for Password Reset -->
         <div class="modal fade" id="resetPasswordModal{{ user.id }}" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
             <div class="modal-dialog">

@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django_countries.fields import CountryField
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 
 STATUS_CHOICES = (
@@ -88,3 +89,24 @@ class UserProjectAssignment(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.project.project_name} ({self.get_effective_return()}%)"
     
+
+
+
+# user document
+class UserDocument(models.Model):
+    DOCUMENT_TYPES = [
+        ('aadhaar', 'Aadhaar Card'),
+        ('voter_id', 'Voter ID'),
+        ('passbook', 'Passbook'),
+        ('other', 'Other')
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='documents')
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    file = models.FileField(upload_to='user_documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.get_document_type_display()}"
+
+
