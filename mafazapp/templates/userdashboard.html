@@ -128,42 +128,44 @@
         <div class="row card1">
 
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
-              
-                    <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
-                    <h6>Total Investments</h6>
-                    <h4>91,42,405</h4>
-                    <span class="aed-text">AED</span>
+                <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <h6>Total Investments</h6>
+                <h4>{{ total_investments|floatformat:2 }}</h4>
+                <span class="aed-text">₹</span>
             </div>
+        
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
-                    <div class="icon"><i class="fas fa-dollar-sign"></i></div>
-                    <h6>Total Returns</h6>
-                    <h4>32,218</h4>
-                    <span class="aed-text">AED</span>
+                <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+                <h6>Total Returns</h6>
+                <h4>{{ total_returns|floatformat:2 }}</h4>
+                <span class="aed-text">₹</span>
             </div>
+        
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
-                    <div class="icon"><i class="fas fa-exchange-alt"></i></div>
-                    <h6>Cash Circulation</h6>
-                    <h4>25,64,789</h4>
-                    <span class="aed-text">AED</span>
+                <div class="icon"><i class="fas fa-exchange-alt"></i></div>
+                <h6>Cash Circulation</h6>
+                <h4>{{ total_investments|floatformat:2 }}</h4>
+                <span class="aed-text">₹</span>
             </div>
- 
+        
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
-                    <div class="icon"><i class="fas fa-percentage"></i></div>
-                    <h6>Total ROI</h6>
-                    <h4>18%</h4>
-                </div>
-            
-             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
-                    <div class="icon"><i class="fas fa-project-diagram"></i></div>
-                    <h6>Total Projects</h6>
-                    <h4>4</h4>
-                </div>
+                <div class="icon"><i class="fas fa-percentage"></i></div>
+                <h6>Total ROI</h6>
+                <h4>{{ roi_percentage|floatformat:2 }}%</h4>
+            </div>
+        
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
-                    <div class="icon"><i class="fas fa-trash-alt"></i></div>
-                    <h6>Total Withdrawals</h6>
-                    <h4>25,598</h4>
-                    <span class="aed-text">AED</span>
-                </div>
+                <div class="icon"><i class="fas fa-project-diagram"></i></div>
+                <h6>Total Projects</h6>
+                <h4>{{ total_projects }}</h4>
+            </div>
+        
+            <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
+                <div class="icon"><i class="fas fa-trash-alt"></i></div>
+                <h6>Total Withdrawals</h6>
+                <h4>{{ total_withdrawals|floatformat:2 }}</h4>
+                <span class="aed-text">₹</span>
+            </div>
             </div>
         
           

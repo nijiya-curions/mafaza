@@ -12,10 +12,13 @@ urlpatterns = [
     path('pendingapproval/', views.pendingapproval, name='pendingapproval'),
     path('userdashboard/', views.userdashboard, name='userdashboard'),
     path('usertransaction/', views.usertransaction, name='usertransaction'),
+
     path('userprojects/', views.userprojects, name='userprojects'),
-    path('admindashboard/', views.admindashboard, name='admindashboard'),
+    path('admin/transactions/', views.admindashboard, name='admindashboard'),
     path('adminusers/', views.adminusers, name='adminusers'),
     path('admintransaction/', views.admintransaction, name='admintransaction'),
+    path('admin/transactions/approve/<int:transaction_id>/', views.approve_transaction, name='approve_transaction'),
+    path('admin/transactions/reject/<int:transaction_id>/', views.reject_transaction, name='reject_transaction'),
     path('userledger/', views.userledger, name='userledger'),
     path('adminprojects/', views.adminprojects, name='adminprojects'),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
@@ -23,7 +26,8 @@ urlpatterns = [
     path('delete-document/<int:document_id>/', views.delete_document, name='delete_document'),
 
   path('assign_project/', views.assign_project, name='assign_project'),
-    path('fetch_assigned_projects/<int:user_id>/', views.fetch_assigned_projects, name='fetch_assigned_projects'),
+    # path('fetch_assigned_projects/<int:user_id>/', views.fetch_assigned_projects, name='fetch_assigned_projects'),
+    path('assigned-projects/', views.assigned_projects, name='assigned_projects'),
 
 # 
     path('admin/users/<uuid:user_id>/documents/', views.admin_user_documents, name='admin_user_documents'),

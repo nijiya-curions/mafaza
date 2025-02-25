@@ -159,9 +159,8 @@
                             <div class="text-end transactionbtn">
                                 <button type="submit" class="btn csv-btn px-4">SUBMIT</button>
                             </div>
-                        </form>
-                        
-                <br>
+                        </form>        
+                          <br>
             
 
         <!-- Recent Transactions Section -->
@@ -192,52 +191,46 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for transaction in transactions %}
                             <tr>
-                                <td>John Scott</td>
-                                <td>WizeGlow</td>
-                                <td><span class="currency">AED</span> 55</td>
-                                <td><span class="currency">AED</span> 4</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
+                                <td>{{ transaction.user.first_name }} {{ transaction.user.last_name }}</td>
+                                <td>{{ transaction.project.project_name }}</td>
+                                <td><span class="currency">AED</span> {{ transaction.amount }}</td>
+                                <td>
+                                    {% if transaction.transaction_type == "withdrawal" %}
+                                        <span class="currency">AED</span> {{ transaction.amount }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.receipt %}
+                                        <a href="{{ transaction.receipt.url }}" class="text-primary" target="_blank">VIEW RECEIPT</a>
+                                    {% else %}
+                                        No Receipt
+                                    {% endif %}
+                                </td>
                                 <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
-                                <td><button class="badge2 ">PENDING</button></td>
+                                <td>
+                                    <form method="POST" action="{% url 'approve_transaction' transaction.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+                                    <form method="POST" action="{% url 'reject_transaction' transaction.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                    </form>
+                                </td>
                             </tr>
+                            {% empty %}
                             <tr>
-                                <td>Isabella White</td>
-                                <td>Intelliweb Technologies</td>
-                                <td><span class="currency">AED</span> 20</td>
-                                <td><span class="currency">AED</span> 10</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
-                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
-                                <td><button class="badge2 ">PENDING</button></td>
+                                <td colspan="7" class="text-center">No pending transactions</td>
                             </tr>
-                            <tr>
-                                <td>Ryan Miller</td>
-                                <td>Ideascape</td>
-                                <td><span class="currency">AED</span> 15</td>
-                                <td><span class="currency">AED</span> 11</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
-                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
-                                <td><button class="badge2 ">PENDING</button></td>
-                            </tr>
-                            <tr>
-                                <td>Sarah Johnson</td>
-                                <td>RoboIntegrators</td>
-                                <td><span class="currency">AED</span> 20</td>
-                                <td><span class="currency">AED</span> 38</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
-                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
-                                <td><button class="badge2 ">PENDING</button></td>
-                            </tr>
-                            <tr>
-                                <td>Ryan Young</td>
-                                <td>DataMasters, Ltd.</td>
-                                <td><span class="currency">AED</span> 36</td>
-                                <td><span class="currency">AED</span> 20</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
-                                <td><a href="#" class="text-primary">UPLOAD RECEIPT</a></td>
-                                <td><button class="badge2 ">PENDING</button></td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
+                        
+                        
+                        
                     </table>
                 </div>
             </div>

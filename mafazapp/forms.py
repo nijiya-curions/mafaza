@@ -109,8 +109,13 @@ class TransactionForm(forms.ModelForm):
 
 class UserTransactionForm(forms.ModelForm):
     class Meta:
-        model= Transaction
+        model = Transaction
         fields = ['amount', 'project', 'transaction_type', 'narration', 'receipt']
+    
+    def __init__(self, *args, **kwargs):
+        super(UserTransactionForm, self).__init__(*args, **kwargs)
+        self.fields['amount'].widget.attrs.update({'placeholder': 'Enter amount'})
+        self.fields['narration'].widget.attrs.update({'placeholder': 'Enter narration'})
 
 
 
@@ -124,7 +129,7 @@ class UserProjectAssignmentForm(forms.ModelForm):
         self.fields['roi'].widget.attrs.update({'placeholder': 'Enter ROI (optional)'})
         
 
-
+ 
 from .models import UserDocument
 
 class UserDocumentForm(forms.ModelForm):

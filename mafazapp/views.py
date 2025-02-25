@@ -17,7 +17,7 @@ from .models import PasswordResetRequest
 from django.contrib.auth.hashers import make_password
 
 from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProfileUpdateForm,ForgotPasswordForm,TransactionForm,UserDocumentForm
-from .models import InvestmentProject,PasswordResetRequest,CustomUser,UserDocument,UserProjectAssignment
+from .models import InvestmentProject,PasswordResetRequest,CustomUser,UserDocument,UserProjectAssignment,Transaction
 from django.utils.timezone import now
 
 
@@ -113,8 +113,6 @@ def admin_required(user):
 
 # user dashboard
 
-@login_required
-@user_login_required
 def userdashboard(request):
     user = request.user  # Get the logged-in user
     form = UserProfileUpdateForm(instance=user)
@@ -158,22 +156,22 @@ def usertransaction(request):
             transaction = form.save(commit=False)
             transaction.user = request.user  # Assign the logged-in user
             transaction.save()
-            messages.success(request, "Transaction added successfully")
-            return redirect("usertransaction")
+            messages.success(request, "Transaction added successfully!")
+            return redirect("usertransaction")  # Redirect to the same page
         else:
-            messages.error(request, "Error adding transaction")
+            messages.error(request, "Error adding transaction. Please check the form.")
     else:
         form = UserTransactionForm()
 
-    # Filter projects assigned to the logged-in user
-    assigned_projects = InvestmentProject.objects.filter(assigned_users__user=request.user)
+    projects = InvestmentProject.objects.all()  # Fetch available projects
+    transactions = Transaction.objects.filter(user=request.user).order_by('-date')  # Fetch user transactions
 
     context = {
-        "form": form,  # Ensure form is always passed
+        "form": form,
+        "projects": projects,
+        "transactions": transactions,
         "today_date": now().strftime("%d %b %Y"),
-        "projects": assigned_projects,  # Pass the filtered projects to the template
     }
-
     return render(request, "usertransaction.html", context)
 
 # admin side
@@ -186,11 +184,14 @@ def userprojects(request):
 
 
 # admin dashbaord
+from django.db.models import Sum, Count, Q
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def admindashboard(request):
     user = request.user  # Get the logged-in admin
+
+    # Handle profile update form
     if request.method == "POST" and "update_profile" in request.POST:
         form = UserProfileUpdateForm(request.POST, instance=user)
         if form.is_valid():
@@ -199,9 +200,47 @@ def admindashboard(request):
     else:
         form = UserProfileUpdateForm(instance=user)
 
-    return render(request, 'admindashboard.html', {'form': form})
+    total_investments = Transaction.objects.filter(transaction_type='investment', status='approved').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_returns = Transaction.objects.filter(transaction_type='withdrawal', status='approved').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_withdrawals = Transaction.objects.filter(transaction_type='withdrawal').aggregate(Sum('amount'))['amount__sum'] or 0
+    cash_circulation = total_investments - total_withdrawals  # Simple cash flow calculation
+
+    active_users = User.objects.filter(is_active=True).count()  # Count active users
+    total_projects = InvestmentProject.objects.count()  # Count all projects
+
+    context = {
+        "form": form,
+        "total_investments": total_investments,
+        "total_returns": total_returns,
+        "cash_circulation": cash_circulation,
+        "active_users": active_users,
+        "total_projects": total_projects,
+        "total_withdrawals": total_withdrawals,
+    }
+
+    return render(request, 'admindashboard.html', context)
 
 
+
+
+
+
+
+
+
+# def admindashboard(request):
+#     user = request.user  # Get the logged-in admin
+#     if request.method == "POST" and "update_profile" in request.POST:
+#         form = UserProfileUpdateForm(request.POST, instance=user)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('admindashboard')  # Redirect after successful update
+#     else:
+#         form = UserProfileUpdateForm(instance=user)
+
+#     return render(request, 'admindashboard.html', {'form': form})
+
+ 
 # admin users
 @user_passes_test(admin_required, login_url='home')
 @never_cache
@@ -278,8 +317,10 @@ def adminusers(request):
 
 # admin transaction
 
-@user_passes_test(admin_required, login_url='home')
-@never_cache
+def admin_required(user):
+    return user.is_authenticated and user.is_staff
+
+@user_passes_test(admin_required, login_url='login')
 def admintransaction(request):
     if request.method == "POST":
         form = TransactionForm(request.POST, request.FILES)
@@ -292,25 +333,49 @@ def admintransaction(request):
     else:
         form = TransactionForm()
 
-    # Fetching projects
+    # Fetching projects and pending transactions
     projects = InvestmentProject.objects.all()
-    print("Projects:", projects) 
+    pending_transactions = Transaction.objects.filter(status="pending").order_by('-date')
 
     context = {
         "form": form,
         "today_date": now().strftime("%d %b %Y"),
         "users": User.objects.all(),
         "projects": projects,
+        "transactions": pending_transactions,  # Include pending transactions
     }
 
     return render(request, "admintransaction.html", context)
+
+@user_passes_test(admin_required, login_url='login')
+@never_cache
+def approve_transaction(request, transaction_id):
+    transaction = get_object_or_404(Transaction, id=transaction_id)
+    transaction.status = 'approved'
+    transaction.save()
+    messages.success(request, f"Transaction {transaction_id} approved successfully.")
+    return redirect("admintransaction")  # Redirect back to the admin dashboard
+
+@user_passes_test(admin_required, login_url='login')
+@never_cache
+def reject_transaction(request, transaction_id):
+    transaction = get_object_or_404(Transaction, id=transaction_id)
+    transaction.status = 'rejected'
+    transaction.save()
+    messages.error(request, f"Transaction {transaction_id} rejected.")
+    return redirect("admintransaction")  # Redirect back to the admin dashboard
 
 # admin user ledger
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def userledger(request):
-    return render(request,'userledger.html')
+    transactions = Transaction.objects.all().select_related("user", "project")
+
+    context = {
+        "transactions": transactions,
+    }
+    return render(request,'userledger.html',context)
 
 # admin projects
 @user_passes_test(admin_required, login_url='home')
@@ -435,45 +500,36 @@ def delete_document(request, document_id):
 
 
 # assigning
+from django.contrib.auth.decorators import login_required, user_passes_test
+
 def assign_project(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
         project_id = request.POST.get('project_id')
         roi = request.POST.get('roi')
 
-        user = get_object_or_404(get_user_model(), id=user_id)
-        project = get_object_or_404(InvestmentProject, id=project_id)
+        User = get_user_model()
+        user = get_object_or_404(User, id=user_id)  # Get the selected user
+        project = get_object_or_404(InvestmentProject, id=project_id)  # Get the selected project
 
+        # Assign project to the user
         assignment, created = UserProjectAssignment.objects.get_or_create(user=user, project=project)
-        assignment.roi = roi
+        assignment.roi = roi  # Update ROI
         assignment.save()
 
         messages.success(request, f"Project {project.project_name} assigned to {user.username} with ROI {roi}.")
-        return redirect('adminusers')
-    else:
-        return redirect('adminusers')
-    
+        return redirect('adminusers')  # Redirect to admin dashboard or assigned projects page
+
+    return redirect('adminusers')  
+ 
+def assigned_projects(request):
+    User = get_user_model()
+    assigned_projects = UserProjectAssignment.objects.filter(user=request.user)
+    if not assigned_projects:
+        assigned_projects = UserProjectAssignment.objects.filter(user=User.objects.first())  # Test with first user
+    return render(request, 'adminusers.html', {'assigned_projects': assigned_projects})
 
 
 
 
-
-
-
-
-
-from django.http import JsonResponse
-from .models import UserProjectAssignment
-
-def fetch_assigned_projects(request, user_id):
-    assignments = UserProjectAssignment.objects.filter(user_id=user_id).select_related('project')
-    projects = [
-        {
-            'project_name': assignment.project.project_name,
-            'roi': assignment.roi or assignment.project.fixed_return_percentage,
-            'total_investment': assignment.project.total_investment,  # Assuming you have this field
-            'total_return': assignment.project.total_return  # Assuming you have this field
-        }
-        for assignment in assignments
-    ]
-    return JsonResponse({'projects': projects})
+ 

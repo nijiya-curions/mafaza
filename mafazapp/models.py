@@ -1,7 +1,5 @@
 from django.db import models
-
 import uuid
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django_countries.fields import CountryField
 from django.contrib.auth import get_user_model
@@ -63,12 +61,14 @@ class Transaction(models.Model):
     ]
 
     date = models.DateField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     project = models.ForeignKey(InvestmentProject, on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
     narration = models.TextField()
     receipt = models.ImageField(upload_to='receipts/', blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  # New field for approval status
+
 
     def __str__(self):
         return f"{self.user} - {self.transaction_type} - {self.amount}"
@@ -89,8 +89,6 @@ class UserProjectAssignment(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.project.project_name} ({self.get_effective_return()}%)"
     
-
-
 
 # user document
 class UserDocument(models.Model):

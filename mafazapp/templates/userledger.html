@@ -103,57 +103,40 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for transaction in transactions %}
                             <tr>
-                                <td>John Scott</td>
-                                <td>WizeGlow</td>
-                                <td><span class="currency">AED</span> 55</td>
-                                <td><span class="currency">AED</span> 72</td>
-                                <td><span class="currency">AED</span> 4</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
-                                <td><button class="badge2 userledgerbtn ">USER DOCS</button></td>
-                            </tr>
-                            <tr>
-                                <td>Isabella White</td>
-                                <td>Intelliweb Technologies</td>
-                                <td><span class="currency">AED</span> 20</td>
-                                <td><span class="currency">AED</span> 54</td>
-                                <td><span class="currency">AED</span> 10</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
-                                <td><button class="badge2 userledgerbtn">USER DOCS</button></td>
-                            </tr>
-
-                            <tr>
-                                <td>Ryan Miller</td>
-                                <td>Ideascape</td>
-                                <td><span class="currency">AED</span> 15</td>
-                                <td><span class="currency">AED</span> 38</td>
-                                <td><span class="currency">AED</span> 11</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
-                                <td><button class="badge2 userledgerbtn ">USER DOCS</button></td>
-                            </tr>
-                            <tr>
-                                <td>Sarah Johnson</td>
-                                <td>RoboIntegrators</td>
-                                <td><span class="currency">AED</span> 20</td>
-                                <td><span class="currency">AED</span> 37</td>
-                                <td><span class="currency">AED</span> 38</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
-                                <td><button class="badge2 userledgerbtn">USER DOCS</button></td>
-                            </tr>
-                            <tr>
-                                <td>Ryan Young</td>
-                                <td>DataMasters, Ltd.</td>
-                                <td><span class="currency">AED</span> 36</td>
-                                <td><span class="currency">AED</span> 20</td>
-                                <td><span class="currency">AED</span> 20</td>
-                                <td><a href="#" class="text-primary">VIEW RECEIPT</a></td>
+                                <td>{{ transaction.user.username }}</td>
+                                <td>{{ transaction.project.project_name }}</td>
+                                <td><span class="currency">AED</span> {{ transaction.amount }}</td>
+                                
+                                <!-- Returns will be calculated based on ROI (example logic) -->
+                                <td><span class="currency">AED</span> {{ transaction.amount|floatformat:2 }}</td>
+                        
+                                {% if transaction.transaction_type == "withdrawal" %}
+                                <td><span class="currency">AED</span> {{ transaction.amount }}</td>
+                                {% else %}
+                                <td><span class="currency">AED</span> 0</td>
+                                {% endif %}
+                        
                                 <td>
-                                    <a href="#" class="badge2 userledgerbtn">
-                                        USER DOCS
-                                    </a>
+                                    {% if transaction.receipt %}
+                                    <a href="{{ transaction.receipt.url }}" class="text-primary" target="_blank">VIEW RECEIPT</a>
+                                    {% else %}
+                                    No Receipt
+                                    {% endif %}
+                                </td>
+                        
+                                <td>
+                                    <button class="badge2 userledgerbtn">USER DOCS</button>
                                 </td>
                             </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">No transactions found.</td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
+                        
                     </table>
                 </div>
             </div>
