@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from django.db.models import Q
 
@@ -112,7 +113,8 @@ def admin_required(user):
 
 
 # user dashboard
-
+@user_login_required
+@never_cache
 def userdashboard(request):
     user = request.user  # Get the logged-in user
     form = UserProfileUpdateForm(instance=user)
@@ -142,8 +144,36 @@ def userdashboard(request):
             messages.success(request, "Profile updated successfully!")
             return redirect("userdashboard")  # Refresh the page
 
-    return render(request, "userdashboard.html", {"form": form})
+    # **Transaction History**
+    transactions = Transaction.objects.filter(user=user).order_by('-date')
 
+    # **Calculations**
+    total_investments = transactions.filter(transaction_type="investment", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
+    total_withdrawals = transactions.filter(transaction_type="withdrawal", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
+
+    # **Calculate Total ROI as the sum of all assigned ROI values**
+    user_projects = UserProjectAssignment.objects.filter(user=user)
+    total_roi_percentage = sum(assignment.roi or 0 for assignment in user_projects)  # Sum of all user-assigned ROI percentages
+
+    # **Convert ROI percentage to actual value**
+    total_returns = (total_roi_percentage / 100) * total_investments if total_investments > 0 else 0
+
+    # **Other calculations**
+    cash_circulation = total_investments - total_withdrawals  # Simple cash flow calculation
+    total_projects = InvestmentProject.objects.filter(transaction__user=user).distinct().count()
+
+    context = {
+        "form": form,
+        "total_investments": total_investments,
+        "total_returns": total_returns,  # Now converted from ROI percentage to actual value
+        "cash_circulation": cash_circulation,
+        "total_roi": total_roi_percentage,  # ROI in percentage
+        "total_projects": total_projects,
+        "total_withdrawals": total_withdrawals,
+        "transactions": transactions,
+    }
+
+    return render(request, "userdashboard.html", context)
 
 # user transaction 
 
@@ -164,7 +194,16 @@ def usertransaction(request):
         form = UserTransactionForm()
 
     projects = InvestmentProject.objects.all()  # Fetch available projects
-    transactions = Transaction.objects.filter(user=request.user).order_by('-date')  # Fetch user transactions
+    transactions_list = Transaction.objects.filter(user=request.user).order_by('-date') 
+    paginator = Paginator(transactions_list, 5)  
+    page = request.GET.get("page")
+
+    try:
+        transactions = paginator.page(page)
+    except PageNotAnInteger:
+        transactions = paginator.page(1)
+    except EmptyPage:
+        transactions = paginator.page(paginator.num_pages)
 
     context = {
         "form": form,
@@ -189,24 +228,35 @@ from django.db.models import Sum, Count, Q
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def admindashboard(request):
-    user = request.user  # Get the logged-in admin
+    user = request.user  
 
-    # Handle profile update form
     if request.method == "POST" and "update_profile" in request.POST:
         form = UserProfileUpdateForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            return redirect('admindashboard')  # Redirect after successful update
+            return redirect("admindashboard")
     else:
         form = UserProfileUpdateForm(instance=user)
 
-    total_investments = Transaction.objects.filter(transaction_type='investment', status='approved').aggregate(Sum('amount'))['amount__sum'] or 0
-    total_returns = Transaction.objects.filter(transaction_type='withdrawal', status='approved').aggregate(Sum('amount'))['amount__sum'] or 0
-    total_withdrawals = Transaction.objects.filter(transaction_type='withdrawal').aggregate(Sum('amount'))['amount__sum'] or 0
-    cash_circulation = total_investments - total_withdrawals  # Simple cash flow calculation
+    total_investments = Transaction.objects.filter(transaction_type="investment", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
+    total_returns = Transaction.objects.filter(transaction_type="return", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
+    total_withdrawals = Transaction.objects.filter(transaction_type="withdrawal").aggregate(Sum("amount"))["amount__sum"] or 0
+    cash_circulation = total_investments - total_withdrawals  
 
-    active_users = User.objects.filter(is_active=True).count()  # Count active users
-    total_projects = InvestmentProject.objects.count()  # Count all projects
+    active_users = User.objects.filter(is_active=True).count()
+    total_projects = InvestmentProject.objects.count()  
+
+    # Fetch all transactions to display in the table with pagination
+    transactions_list = Transaction.objects.select_related("user", "project").order_by("-date")
+    paginator = Paginator(transactions_list, 5)  # Show 10 transactions per page
+    page = request.GET.get("page")
+
+    try:
+        transactions = paginator.page(page)
+    except PageNotAnInteger:
+        transactions = paginator.page(1)
+    except EmptyPage:
+        transactions = paginator.page(paginator.num_pages)
 
     context = {
         "form": form,
@@ -216,29 +266,10 @@ def admindashboard(request):
         "active_users": active_users,
         "total_projects": total_projects,
         "total_withdrawals": total_withdrawals,
+        "transactions": transactions,  # Paginated transactions
     }
 
-    return render(request, 'admindashboard.html', context)
-
-
-
-
-
-
-
-
-
-# def admindashboard(request):
-#     user = request.user  # Get the logged-in admin
-#     if request.method == "POST" and "update_profile" in request.POST:
-#         form = UserProfileUpdateForm(request.POST, instance=user)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('admindashboard')  # Redirect after successful update
-#     else:
-#         form = UserProfileUpdateForm(instance=user)
-
-#     return render(request, 'admindashboard.html', {'form': form})
+    return render(request, "admindashboard.html", context)
 
  
 # admin users
@@ -370,12 +401,23 @@ def reject_transaction(request, transaction_id):
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def userledger(request):
-    transactions = Transaction.objects.all().select_related("user", "project")
+    transactions_list = Transaction.objects.all().select_related("user", "project").order_by('-date')
+    
+    # Pagination
+    paginator = Paginator(transactions_list, 5)  
+    page = request.GET.get("page")
+
+    try:
+        transactions = paginator.page(page)
+    except PageNotAnInteger:
+        transactions = paginator.page(1)
+    except EmptyPage:
+        transactions = paginator.page(paginator.num_pages)
 
     context = {
         "transactions": transactions,
     }
-    return render(request,'userledger.html',context)
+    return render(request, "userledger.html", context)
 
 # admin projects
 @user_passes_test(admin_required, login_url='home')
@@ -501,7 +543,8 @@ def delete_document(request, document_id):
 
 # assigning
 from django.contrib.auth.decorators import login_required, user_passes_test
-
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def assign_project(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
@@ -521,7 +564,9 @@ def assign_project(request):
         return redirect('adminusers')  # Redirect to admin dashboard or assigned projects page
 
     return redirect('adminusers')  
- 
+
+@user_passes_test(admin_required, login_url='home')
+@never_cache
 def assigned_projects(request):
     User = get_user_model()
     assigned_projects = UserProjectAssignment.objects.filter(user=request.user)

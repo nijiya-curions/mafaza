@@ -50,14 +50,11 @@
             <div class="col-12">
                 <div class="card p-3">
                     <h2 class="text-center">{{ request.user.first_name }}'s Dashboard</h2>
-
-                    <div class="d-flex justify-content-end settings" >
-                        <i class="fas fa-cog settings-icon" ></i>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Request New Transaction Section -->
     <div class="container-fluid requestcontainer">
@@ -67,7 +64,6 @@
                     <h4><i class="fas fa-file-alt"></i> REQUEST NEW TRANSACTION</h4>
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-sm-12">
-
                             <form method="POST" enctype="multipart/form-data">  
                                 {% csrf_token %}
                             <label>Date</label>
@@ -93,7 +89,7 @@
                                 {% endif %}
                             </select>
                         </div>
-                
+                 
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Transaction Type</label>
                             <select name="transaction_type" class="form-control">
@@ -123,10 +119,10 @@
                             </div>
                         </div>
                     </div>
-                
+                 
                     <br>
                     
-                    <div class="text-end">
+                  <div class="text-end">
                         <button type="submit" class="csv-btn">SUBMIT</button>
                     </div>
                 </form>
@@ -171,7 +167,7 @@
 
                         <td>
                             {% if transaction.transaction_type == "withdrawal" %}
-                                {{ transaction.amount }} د.إ
+                                {{ transaction.amount }} <span class="currency">AED</span>
                             {% else %}
                                 -
                             {% endif %}
@@ -179,12 +175,12 @@
 
                         <td>
                             {% if transaction.transaction_type == "withdrawal" %}
-                                {{ transaction.amount }} د.إ
+                                {{ transaction.amount }} <span class="currency">AED</span>
                             {% else %}
                                 -
                             {% endif %}
                         </td>
-
+    
                         <td>
                             {% if transaction.receipt %}
                                 <a href="{{ transaction.receipt.url }}" target="_blank">VIEW RECEIPT</a>
@@ -196,7 +192,9 @@
                         <td>
                             <button class="badge2">{{ transaction.status|upper }}</button>
                         </td>
+
                     </tr>
+
                     {% empty %}
                     <tr>
                         <td colspan="8" class="text-center">No transactions found.</td>
@@ -208,21 +206,43 @@
     </div>
 </div>
 
-        <div class="row mt-4">
-            <div class="col-6" >
-                <p>63 results</p>
-                </div>
-            <div class="col-6" >
+<div class="row mt-4">
+    <div class="col-6">
+        <p>{{ transactions.paginator.count }} results</p>
+    </div>
+    <div class="col-6">
         <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
-                <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
+                {% if transactions.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ transactions.previous_page_number }}">&lt;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">&lt;</a>
+                    </li>
+                {% endif %}
+
+                {% for num in transactions.paginator.page_range %}
+                    <li class="page-item {% if transactions.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+
+                {% if transactions.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ transactions.next_page_number }}">&gt;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">&gt;</a>
+                    </li>
+                {% endif %}
             </ul>
         </nav>  
-     </div>
     </div>
+</div>
+
 
 </div>
             <script>

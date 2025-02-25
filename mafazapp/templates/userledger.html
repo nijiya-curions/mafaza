@@ -60,7 +60,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card p-3">
-                    <h2 class="text-center">Admin Dashboard</h2>
+                    <h2 class="text-center">Welcome, {{ request.user.first_name }}</h2>
+
         
                     <!-- Container to align icons to the right -->
                     <div class="icons">
@@ -144,20 +145,42 @@
         
     
         <div class="row mt-4">
-            <div class="col-6" >
-                <p>63 results</p>
-                </div>
-            <div class="col-6" >
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-                <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                
-                <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-            </ul>
-        </nav>   </div></div>
-
+            <div class="col-6">
+                <p>{{ transactions.paginator.count }} results</p>
+            </div>
+            <div class="col-6">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end">
+                        {% if transactions.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ transactions.previous_page_number }}">&lt;</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">&lt;</a>
+                            </li>
+                        {% endif %}
+        
+                        {% for num in transactions.paginator.page_range %}
+                            <li class="page-item {% if transactions.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+        
+                        {% if transactions.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ transactions.next_page_number }}">&gt;</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">&gt;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        
             </div>
             <script>
                 // JavaScript for Sidebar Toggle

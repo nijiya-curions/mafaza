@@ -114,7 +114,7 @@
     <div class="container-fluid" >
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12 "> 
-                <div class="card p-3"><h2 class="text-center">NIJIYA's Dashboard</h1>
+                <h2 class="text-center">Welcome, {{ request.user.first_name }}</h2>
 
                     <div style="display: flex; justify-content: flex-end; font-size: 25px; margin-top: -40px; padding-bottom: 10px;">
                         <i class="fas fa-cog settings-icon" data-bs-toggle="modal" data-bs-target="#profileUpdateModal" style="cursor: pointer;"></i>
@@ -130,42 +130,43 @@
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                 <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
                 <h6>Total Investments</h6>
-                <h4>{{ total_investments|floatformat:2 }}</h4>
+                <h4>{{ total_investments|default:0 }}</h4>
                 <span class="aed-text">₹</span>
             </div>
-        
+            
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                 <div class="icon"><i class="fas fa-dollar-sign"></i></div>
                 <h6>Total Returns</h6>
-                <h4>{{ total_returns|floatformat:2 }}</h4>
+                <h4>{{ total_returns }}</h4>
                 <span class="aed-text">₹</span>
             </div>
-        
+            
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                 <div class="icon"><i class="fas fa-exchange-alt"></i></div>
                 <h6>Cash Circulation</h6>
-                <h4>{{ total_investments|floatformat:2 }}</h4>
+                <h4>{{ cash_circulation|default:0 }}</h4>
                 <span class="aed-text">₹</span>
             </div>
-        
+            
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                 <div class="icon"><i class="fas fa-percentage"></i></div>
                 <h6>Total ROI</h6>
-                <h4>{{ roi_percentage|floatformat:2 }}%</h4>
+                <h4>{{ total_roi|floatformat:2 }}%</h4>
             </div>
-        
+            
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                 <div class="icon"><i class="fas fa-project-diagram"></i></div>
                 <h6>Total Projects</h6>
-                <h4>{{ total_projects }}</h4>
+                <h4>{{ total_projects|default:0 }}</h4>
             </div>
-        
+            
             <div class="col-lg-4 col-md-6 col-sm-12 col-12 maincard no-padding">
                 <div class="icon"><i class="fas fa-trash-alt"></i></div>
                 <h6>Total Withdrawals</h6>
-                <h4>{{ total_withdrawals|floatformat:2 }}</h4>
+                <h4>{{ total_withdrawals|default:0 }}</h4>
                 <span class="aed-text">₹</span>
             </div>
+            
             </div>
         
           
@@ -192,71 +193,40 @@
         <div class="row mt-4">
             <div class="col-12">
                 <table class="table">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Date</th>
-                            <th>Project</th>
-                            <th>Narration</th>
-                            <th>Investment</th>
-                            <th>Returns</th>
-                            <th>Withdrawal</th>
-                            <th>Balance</th>
-                            <th>Receipt</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>31-Oct-2021</td>
-                            <td>AvatarSystems</td>
-                            <td>Sint tempor ipsu</td>
-                            <td>803</td>
-                            <td>-</td>
-                            <td>72</td>
-                            <td>92</td>
-                            <td><a href="#">View Receipt</a></td>
-                        </tr>
-                        <tr>
-                            <td>31-Oct-2021</td>
-                            <td>WizeGlow</td>
-                            <td>Irure non sunt nul</td>
-                            <td>606</td>
-                            <td>-</td>
-                            <td>80</td>
-                            <td>58</td>
-                            <td><a href="#">View Receipt</a></td>
-                        </tr>
-                        <tr>
-                            <td>31-Oct-2021</td>
-                            <td>Ascend Solutions</td>
-                            <td>Laboris deserunt</td>
-                            <td>606</td>
-                            <td>-</td>
-                            <td>56</td>
-                            <td>78</td>
-                            <td><a href="#">View Receipt</a></td>
-                        </tr>
-                        <tr>
-                            <td>31-Oct-2021</td>
-                            <td>WizeGlow</td>
-                            <td>Irure non sunt nul</td>
-                            <td>606</td>
-                            <td>-</td>
-                            <td>80</td>
-                            <td>58</td>
-                            <td><a href="#">View Receipt</a></td>
-                        </tr>
-                        <tr>
-                            <td>31-Oct-2021</td>
-                            <td>WizeGlow</td>
-                            <td>Irure non sunt nul</td>
-                            <td>606</td>
-                            <td>-</td>
-                            <td>80</td>
-                            <td>58</td>
-                            <td><a href="#">View Receipt</a></td>
-                        </tr>
-                    </tbody>
-                </table>
+    <thead class="table-light">
+        <tr>
+            <th>Date</th>
+            <th>Project</th>
+            <th>Narration</th>
+            <th>Investment</th>
+            <th>Returns</th>
+            <th>Withdrawal</th>
+            <th>Balance</th>
+            <th>Receipt</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.date|date:"d-M-Y" }}</td>
+            <td>{{ transaction.project.project_name }}</td>
+            <td>{{ transaction.narration }}</td>
+            
+            <td>{% if transaction.transaction_type == 'investment' %}{{ transaction.amount }}{% else %}-{% endif %}</td>
+            
+            <td>{{ transaction.returns|default:"-" }}</td>
+            
+            <td>{% if transaction.transaction_type == 'withdrawal' %}{{ transaction.amount }}{% else %}-{% endif %}</td>
+            
+            <td>{{ transaction.balance|default:"-" }}</td>
+            <td><a href="#">View Receipt</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    
+</table>
+
+                
             </div>
         </div>
 

@@ -124,7 +124,7 @@
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12"> 
                 <div class="card p-3">
-                    <h2 class="text-center">Admin Dashboard</h2>
+                    <h2 class="text-center">Welcome, {{ request.user.first_name }}</h2>
         
                     <!-- Container to align icons to the right -->
                     <div class="icons">
@@ -214,77 +214,96 @@
             <div class="col-12">
 
                 <table class="table">
-    <thead class="table-light">
-        <tr>
-            <th>DATE</th>
-            <th>NAME</th>
-            <th>PROJECT</th>
-            <th>DEBIT</th>
-            <th>CREDIT</th>
-            <th>STATUS</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>31-Oct-2021</td>
-            <td><strong>Elizabeth Lee</strong></td>
-            <td>AvatarSystems</td>
-            <td>﷼ 803</td>
-            <td>-</td>
-            <td><button class="badge3 ">APPROVED</button></td>
-        </tr>
-        <tr>
-            <td>31-Oct-2021</td>
-            <td><strong>John Scott</strong></td>
-            <td>WizeGlow</td>
-            <td>-</td>
-            <td>﷼ 606</td>
-            <td><button class="badge2 ">PENDING</button></td>
-        </tr>
-        <tr>
-            <td>31-Oct-2021</td>
-            <td><strong>Jennifer Lopez</strong></td>
-            <td>Ascend Solutions</td>
-            <td>-</td>
-            <td>﷼ 606</td>
-            <td><button class="badge3 ">APPROVED</button></td>
-        </tr>
-        <tr>
-            <td>31-Oct-2021</td>
-            <td><strong>Pedro Moreno</strong></td>
-            <td>Skyway Technologies</td>
-            <td>﷼ 867</td>
-            <td>-</td>
-            <td><button class="badge3 ">APPROVED</button></td>
-        </tr>
-        <tr>
-            <td>31-Oct-2021</td>
-            <td><strong>Ashley Watson</strong></td>
-            <td>DigiViz</td>
-            <td>-</td>
-            <td>﷼ 606</td>
-            <td><button class="badge1 ">REJECTED</button></td>
-        </tr>
-    </tbody>
-</table>
+                    <thead class="table-light">
+                        <tr>
+                            <th>DATE</th>
+                            <th>NAME</th>
+                            <th>PROJECT</th>
+                            <th>CREDIT</th>
+                            <th>DEBIT</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.date|date:"d-M-Y" }}</td>
+                            <td><strong>{{ transaction.user.get_full_name }}</strong></td>
+                            <td>{{ transaction.project.project_name }}</td>
+                            <td>
+                                {% if transaction.transaction_type == "investment" %}
+                                    ₹ {{ transaction.amount }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if transaction.transaction_type == "withdrawal" %}
+                                    ₹ {{ transaction.amount }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if transaction.status == "approved" %}
+                                    <button class="badge3">APPROVED</button>
+                                {% elif transaction.status == "pending" %}
+                                    <button class="badge2">PENDING</button>
+                                {% elif transaction.status == "rejected" %}
+                                    <button class="badge1">REJECTED</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No transactions found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
 
 
             </div>
         </div>
 
         <div class="row mt-4">
-            <div class="col-6" >
-                <p>63 results</p>
-                </div>
-            <div class="col-6" >
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-                <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-            </ul>
-        </nav>   </div></div>
+            <div class="col-6">
+                <p>{{ transactions.paginator.count }} results</p>
+            </div>
+            <div class="col-6">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end">
+                        {% if transactions.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ transactions.previous_page_number }}">&lt;</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">&lt;</a>
+                            </li>
+                        {% endif %}
+        
+                        {% for num in transactions.paginator.page_range %}
+                            <li class="page-item {% if transactions.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+        
+                        {% if transactions.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ transactions.next_page_number }}">&gt;</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">&gt;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        
 
 
     </div>
