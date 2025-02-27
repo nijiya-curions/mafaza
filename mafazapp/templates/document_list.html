@@ -272,7 +272,7 @@
     document.getElementById('delete_document_id').value = documentId;
     
     // Set the correct action URL dynamically
-    document.getElementById('deleteDocumentForm').action = `/investapp/delete-document/${documentId}/`;
+    document.getElementById('deleteDocumentForm').action = `/mafazapp/delete-document/${documentId}/`;
 
     let deleteModal = new bootstrap.Modal(document.getElementById('deleteDocumentModal'));
     deleteModal.show();

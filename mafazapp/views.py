@@ -17,7 +17,7 @@ from django.db.models import Q
 from .models import PasswordResetRequest
 from django.contrib.auth.hashers import make_password
 
-from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProfileUpdateForm,ForgotPasswordForm,TransactionForm,UserDocumentForm
+from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProfileUpdateForm,ForgotPasswordForm,TransactionForm,UserDocumentForm,UserProjectAssignmentForm
 from .models import InvestmentProject,PasswordResetRequest,CustomUser,UserDocument,UserProjectAssignment,Transaction
 from django.utils.timezone import now
 
@@ -282,6 +282,20 @@ def adminusers(request):
     user_type = request.GET.get('user_type', '')
     users = User.objects.exclude(is_superuser=True)
 
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    if user_type:
+        if user_type == 'Admin':
+            users = users.filter(is_staff=True)
+        elif user_type == 'User':
+            users = users.filter(is_staff=False)
+
     approved_users = users.filter(is_approved=True)
     pending_users = users.filter(is_approved=False)
     requested_users = approved_users.filter(has_requested=True)
@@ -289,7 +303,8 @@ def adminusers(request):
     page_number = request.GET.get('page')
     page_users = paginator.get_page(page_number)
 
-    projects = InvestmentProject.objects.all()  # Get all projects
+    projects = InvestmentProject.objects.all()
+    form = UserProjectAssignmentForm()
 
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
@@ -300,7 +315,7 @@ def adminusers(request):
         except User.DoesNotExist:
             messages.error(request, "User not found.")
             return redirect('adminusers')
-
+         
         if request.user.is_staff:
             if action == 'confirm_toggle':
                 user.is_approved = not user.is_approved
@@ -333,6 +348,18 @@ def adminusers(request):
 
                 return redirect('adminusers')
 
+            elif action == 'assign_project':  
+                form = UserProjectAssignmentForm(request.POST)
+                if form.is_valid():
+                    assignment = form.save(commit=False)
+                    assignment.user = user  # Assign selected user
+                    assignment.save() 
+                    messages.success(request, f"Project assigned to {user.username} successfully!")
+                else:
+                    messages.error(request, "Error assigning project. Please check the form.")
+
+                return redirect('adminusers')
+       
         else:
             messages.error(request, "You do not have permission to perform this action.")
 
@@ -342,7 +369,8 @@ def adminusers(request):
         'requested_users': requested_users,
         'search_query': search_query,
         'user_type': user_type,
-        'projects': projects  # Pass the projects to the template
+        'projects': projects,
+        'form': form
     })
 
 
@@ -420,6 +448,7 @@ def userledger(request):
     return render(request, "userledger.html", context)
 
 # admin projects
+
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def adminprojects(request):
@@ -431,7 +460,7 @@ def adminprojects(request):
     else:
         form = InvestmentProjectForm()
 
-    projects = InvestmentProject.objects.all()  # Fetch existing projects
+    projects = InvestmentProject.objects.all()  # Fetch all projects
     return render(request, 'adminprojects.html', {'form': form, 'projects': projects})
 
 # forgot password
@@ -474,6 +503,7 @@ def admin_user_documents(request, user_id):
 
     return render(request, 'admin_user_documents.html', {'user': user, 'documents': documents})
 
+# delete document by admin
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
@@ -489,7 +519,6 @@ def admin_delete_document(request, document_id):
 
 
 # document section for users
-
 
 def document_list(request):
     """List all documents and handle document uploads and edits in the same view."""
@@ -533,6 +562,7 @@ def document_list(request):
     })
 
 
+@user_login_required
 def delete_document(request, document_id):
     """Allow users to delete their uploaded documents."""
     document = get_object_or_404(UserDocument, id=document_id, user=request.user)
@@ -540,7 +570,7 @@ def delete_document(request, document_id):
     document.delete()
     return redirect('document_list')
 
-
+ 
 # assigning
 from django.contrib.auth.decorators import login_required, user_passes_test
 @user_passes_test(admin_required, login_url='home')
@@ -573,7 +603,6 @@ def assigned_projects(request):
     if not assigned_projects:
         assigned_projects = UserProjectAssignment.objects.filter(user=User.objects.first())  # Test with first user
     return render(request, 'adminusers.html', {'assigned_projects': assigned_projects})
-
 
 
 

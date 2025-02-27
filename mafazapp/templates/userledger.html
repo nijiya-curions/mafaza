@@ -128,8 +128,9 @@
                                 </td>
                         
                                 <td>
-                                    <button class="badge2 userledgerbtn">USER DOCS</button>
+                                    <a href="{% url 'admin_user_documents' transaction.user.id %}" class="badge2 userledgerbtn">USER DOCS</a>
                                 </td>
+                                
                             </tr>
                             {% empty %}
                             <tr>
