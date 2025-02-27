@@ -64,7 +64,7 @@
                     <!-- Container to align icons to the right -->
                     <div class="icons">
                         <i class="fa-regular fa-bell"></i>
-                        <i class="fas fa-cog settings-icon"></i>
+                        <!-- <i class="fas fa-cog settings-icon"></i> -->
                     </div>
         
                 </div> 
@@ -161,7 +161,7 @@
 
                 <!-- Buttons and Active Switch -->
                 <div class="col-12 mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between">
-                    <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0">
+                    <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#editProjectModal">
                         <i class="fas fa-edit"></i> EDIT
                     </button>
                     <div class="form-check form-switch">
@@ -176,7 +176,80 @@
     <p class="text-center text-muted">No projects available.</p>
 {% endfor %}
 
+<div class="modal fade" id="editProjectModal" tabindex="-1" aria-labelledby="editProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProjectModalLabel">Edit Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form inside modal -->
+                <form method="post" enctype="multipart/form-data" id="modalProjectForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="project_id" id="modal_project_id">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>Project Name</label>
+                            <input type="text" name="project_name" id="modal_project_name" class="form-control bg-light" placeholder="Enter project name" required>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>Total Investment</label>
+                            <input type="number" name="total_investment" id="modal_total_investment" class="form-control bg-light" placeholder="Enter amount" required>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>Min ROI (%)</label>
+                            <input type="number" name="min_roi" id="modal_min_roi" class="form-control bg-light" placeholder="Enter min ROI" step="0.01" required>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-sm-12">
+                            <label>Max ROI (%)</label>
+                            <input type="number" name="max_roi" id="modal_max_roi" class="form-control bg-light" placeholder="Enter max ROI" step="0.01" required>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label>Project Description</label>
+                            <textarea name="project_description" id="modal_project_description" class="form-control bg-light" placeholder="Enter description" rows="3" required></textarea>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label>Upload Images</label>
+                            <div class="p-3 text-center adminprojectfile bg-light" onclick="document.getElementById('modalProjectImageUpload').click()">
+                                <p class="mb-1">Drop files here</p>
+                                <small class="text-muted">Supported format: PNG, JPG</small>
+                                <input type="file" id="modalProjectImageUpload" name="images" class="form-control bg-light d-none" accept="image/png, image/jpeg">
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="text-end">
+                        <button type="submit" class="btn csv-btn px-4">SUBMIT</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 
+<script>
+// JavaScript to populate modal with current project data
+document.querySelectorAll('.btn-warning').forEach(button => {
+    button.addEventListener('click', function() {
+        const projectId = this.getAttribute('data-project-id');
+        fetch(`/projects/${projectId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('modal_project_id').value = data.id;
+                document.getElementById('modal_project_name').value = data.project_name;
+                document.getElementById('modal_total_investment').value = data.total_investment;
+                document.getElementById('modal_min_roi').value = data.min_roi;
+                document.getElementById('modal_max_roi').value = data.max_roi;
+                document.getElementById('modal_project_description').value = data.project_description;
+            });
+    });
+});
+</script>
 <!-- Add FontAwesome for icons -->
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script src="{% static 'script.js' %}"></script>

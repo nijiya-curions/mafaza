@@ -21,6 +21,8 @@ urlpatterns = [
     path('admin/transactions/reject/<int:transaction_id>/', views.reject_transaction, name='reject_transaction'),
     path('userledger/', views.userledger, name='userledger'),
     path('adminprojects/', views.adminprojects, name='adminprojects'),
+    path('projects/<int:project_id>/', views.get_project, name='get_project'),
+
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('documents/', views.document_list, name='document_list'),
     path('delete-document/<int:document_id>/', views.delete_document, name='delete_document'),

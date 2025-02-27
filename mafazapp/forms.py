@@ -122,13 +122,15 @@ class UserTransactionForm(forms.ModelForm):
 class UserProjectAssignmentForm(forms.ModelForm):
     class Meta:
         model = UserProjectAssignment
-        fields = ['user', 'project', 'roi']
+        fields = ['user', 'project', 'roi', 'return_period']
 
     def __init__(self, *args, **kwargs):
         super(UserProjectAssignmentForm, self).__init__(*args, **kwargs)
         self.fields['roi'].widget.attrs.update({'placeholder': 'Enter ROI (optional)'})
-        
+        self.fields['return_period'].widget.attrs.update({'class': 'form-select'})
 
+
+        
  
 from .models import UserDocument
 

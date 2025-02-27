@@ -8,15 +8,11 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.contrib import messages
-
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-
 from django.db.models import Q
-
 from .models import PasswordResetRequest
 from django.contrib.auth.hashers import make_password
-
 from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProfileUpdateForm,ForgotPasswordForm,TransactionForm,UserDocumentForm,UserProjectAssignmentForm
 from .models import InvestmentProject,PasswordResetRequest,CustomUser,UserDocument,UserProjectAssignment,Transaction
 from django.utils.timezone import now
@@ -344,10 +340,9 @@ def adminusers(request):
                     user.save()
                     messages.success(request, f"Password for {user.username} has been reset successfully.")
                 else:
-                    messages.error(request, "Passwords do not match.")
-
+                    messages.error(request, "Passwords do not match.")           
                 return redirect('adminusers')
-
+                  
             elif action == 'assign_project':  
                 form = UserProjectAssignmentForm(request.POST)
                 if form.is_valid():
@@ -370,7 +365,8 @@ def adminusers(request):
         'search_query': search_query,
         'user_type': user_type,
         'projects': projects,
-        'form': form
+        'form': form,
+
     })
 
 
@@ -380,6 +376,7 @@ def admin_required(user):
     return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='login')
+
 def admintransaction(request):
     if request.method == "POST":
         form = TransactionForm(request.POST, request.FILES)
@@ -396,15 +393,28 @@ def admintransaction(request):
     projects = InvestmentProject.objects.all()
     pending_transactions = Transaction.objects.filter(status="pending").order_by('-date')
 
+    # Pagination
+    page = request.GET.get('page', 1)
+    paginator = Paginator(pending_transactions, 10)  # Show 10 transactions per page
+
+    try:
+        transactions = paginator.page(page)
+    except PageNotAnInteger:
+        transactions = paginator.page(1)
+    except EmptyPage:
+        transactions = paginator.page(paginator.num_pages)
+
     context = {
         "form": form,
         "today_date": now().strftime("%d %b %Y"),
         "users": User.objects.all(),
         "projects": projects,
-        "transactions": pending_transactions,  # Include pending transactions
+        "transactions": transactions,  # Use the paginated transactions
     }
 
     return render(request, "admintransaction.html", context)
+
+
 
 @user_passes_test(admin_required, login_url='login')
 @never_cache
@@ -448,20 +458,39 @@ def userledger(request):
     return render(request, "userledger.html", context)
 
 # admin projects
+from django.http import JsonResponse
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def adminprojects(request):
     if request.method == "POST":   
-        form = InvestmentProjectForm(request.POST, request.FILES)
+        project_id = request.POST.get('project_id')
+        if project_id:
+            project = get_object_or_404(InvestmentProject, id=project_id)
+            form = InvestmentProjectForm(request.POST, request.FILES, instance=project)
+        else:
+            form = InvestmentProjectForm(request.POST, request.FILES)
+        
         if form.is_valid():
             form.save()
-            return redirect('adminprojects')  # Refresh page after submission
+            return redirect('adminprojects')
     else:
         form = InvestmentProjectForm()
 
-    projects = InvestmentProject.objects.all()  # Fetch all projects
+    projects = InvestmentProject.objects.all()
     return render(request, 'adminprojects.html', {'form': form, 'projects': projects})
+
+def get_project(request, project_id):
+    project = get_object_or_404(InvestmentProject, id=project_id)
+    data = {
+        'id': project.id,
+        'project_name': project.project_name,
+        'total_investment': project.total_investment,
+        'min_roi': project.min_roi,
+        'max_roi': project.max_roi,
+        'project_description': project.project_description,
+    }
+    return JsonResponse(data)
 
 # forgot password
 
@@ -490,7 +519,6 @@ def forgot_password(request):
     return render(request, "forgot_password.html", {"form": form})
 
     
-
 # document for admin
 
 @user_passes_test(admin_required, login_url='home')
@@ -514,7 +542,6 @@ def admin_delete_document(request, document_id):
     document.delete()
     messages.success(request, "Document deleted successfully.")
     return redirect('admin_user_documents', user_id=document.user.id)
-
 
 
 
@@ -547,7 +574,7 @@ def document_list(request):
                 document.user = request.user
                 document.save()
                 return redirect('document_list')  # Redirect after upload
-
+ 
     # Handle edit request (GET request for edit form)
     document_id = request.GET.get('edit')
     if document_id:
@@ -570,9 +597,13 @@ def delete_document(request, document_id):
     document.delete()
     return redirect('document_list')
 
- 
+def delete_document(request, document_id):
+    document = get_object_or_404(UserDocument, id = document_id, user= request.user)
+    document.file.delete()
+    document.delete()
+    
 # assigning
-from django.contrib.auth.decorators import login_required, user_passes_test
+
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def assign_project(request):
@@ -595,6 +626,7 @@ def assign_project(request):
 
     return redirect('adminusers')  
 
+
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def assigned_projects(request):
@@ -604,6 +636,3 @@ def assigned_projects(request):
         assigned_projects = UserProjectAssignment.objects.filter(user=User.objects.first())  # Test with first user
     return render(request, 'adminusers.html', {'assigned_projects': assigned_projects})
 
-
-
- 

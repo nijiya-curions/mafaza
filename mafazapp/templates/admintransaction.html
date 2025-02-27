@@ -67,7 +67,7 @@
                     <!-- Container to align icons to the right -->
                     <div class="icons">
                         <i class="fa-regular fa-bell"></i>
-                        <i class="fas fa-cog settings-icon"></i>
+                        <!-- <i class="fas fa-cog settings-icon"></i> -->
                     </div>
                 </div>
             </div>
@@ -148,7 +148,7 @@
                                 <div class="col-md-6 col-sm-12">
                                     <label>Upload Receipt</label>
                                     <div class="upload-box" onclick="document.getElementById('receiptUpload').click()">
-                                        <p>Drop files here</p>
+                                        <p >Drop files here</p>
                                         <small>Supported format: PNG, JPG</small>
                                         <input type="file" name="receipt" id="receiptUpload" class="d-none" accept="image/png, image/jpeg">
                                     </div>
@@ -215,8 +215,8 @@
                                 <td>
                                     <form method="POST" action="{% url 'approve_transaction' transaction.id %}" style="display:inline;">
                                         {% csrf_token %}
-                                        <button type="submit" class=" badge3 ">Approve</button>
-                                    </form>
+                                        <button type="submit" class="badge3">Approve</button>
+                                    </form><br>
                                     <form method="POST" action="{% url 'reject_transaction' transaction.id %}" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="badge1 btn-sm">Reject</button>
@@ -229,28 +229,55 @@
                             </tr>
                             {% endfor %}
                         </tbody>
-                        
-                        
-                        
                     </table>
                 </div>
-            </div>
-        </div>
-
-
                 
-        <div class="row mt-4">
-            <div class="col-6" >
-                <p>63 results</p>
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <p>{{ transactions.paginator.count }} results</p>
+                    </div>
+                    <div class="col-6">
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination justify-content-end">
+                                {% if transactions.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ transactions.previous_page_number }}" aria-label="Previous">
+                                        <span aria-hidden="true">&lt;</span>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&lt;</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
+                                {% for num in transactions.paginator.page_range %}
+                                    {% if transactions.number == num %}
+                                        <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                                    {% elif num > transactions.number|add:'-2' and num < transactions.number|add:'2' %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if transactions.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ transactions.next_page_number }}" aria-label="Next">
+                                        <span aria-hidden="true">&gt;</span>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <span aria-hidden="true">&gt;</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
-            <div class="col-6" >
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-                <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-            </ul>
-        </nav>   </div></div>
 
             </div>
             <script>
@@ -267,6 +294,9 @@
                 toggleButton.innerHTML = "☰";   // Change to Menu Button
             }
         });
-            </script>
+         
+         
+</script>
+
 </body>
 </html>
