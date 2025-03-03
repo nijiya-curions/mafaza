@@ -23,7 +23,7 @@ urlpatterns = [
    path('userledger/<uuid:user_id>/', views.userledger, name='userledger'),
 
     path('adminprojects/', views.adminprojects, name='adminprojects'),
-    path('projects/<int:project_id>/', views.get_project, name='get_project'),
+    path('edit_project/<int:project_id>/', views.edit_project, name='edit_project'),
 
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('documents/', views.document_list, name='document_list'),
@@ -37,6 +37,8 @@ urlpatterns = [
     path('admin/users/<uuid:user_id>/documents/', views.admin_user_documents, name='admin_user_documents'),
     path('admin/users/documents/delete/<int:document_id>/', views.admin_delete_document, name='admin_delete_document'),
 
-
+   path("export/csv/", views.export_transactions_csv, name="export_csv"),
+    path("export/pdf/", views.export_transactions_pdf, name="export_pdf"),
+    path('toggle_project_status/<int:project_id>/', views.toggle_project_status, name='toggle_project_status'),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

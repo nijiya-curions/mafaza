@@ -46,13 +46,14 @@ class InvestmentProject(models.Model):
     min_roi = models.DecimalField(max_digits=5, decimal_places=2, help_text="Minimum Return on Investment (%)")
     max_roi = models.DecimalField(max_digits=5, decimal_places=2, help_text="Maximum Return on Investment (%)")
     project_description = models.TextField()
-    images = models.ImageField(upload_to='project_images/', blank=True, null=True)
+    image1 = models.ImageField(upload_to='project_images/', blank=True, null=True)
+    image2 = models.ImageField(upload_to='project_images/', blank=True, null=True)
+    image3 = models.ImageField(upload_to='project_images/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)  # Added active/inactive toggle
     created_at = models.DateTimeField(auto_now_add=True)
-
     def __str__(self):
         return self.project_name 
-  
-
+   
 
 class Transaction(models.Model):
     TRANSACTION_TYPES = [

@@ -112,11 +112,16 @@
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <label>Upload Images</label>
-                            <div class="p-3 text-center adminprojectfile bg-light" onclick="document.getElementById('projectImageUpload').click()">
-                                <p class="mb-1">Drop files here</p>
+                            <div class="p-3 text-center adminprojectfile bg-light">
+                                <p class="mb-1">Drop 3 files at once here</p>
                                 <small class="text-muted">Supported format: PNG, JPG</small>
-                                <input type="file" id="projectImageUpload" name="images" class="form-control bg-light d-none" accept="image/png, image/jpeg">
-                            </div>                            
+                                <input type="file" name="images[]" class="form-control bg-light" accept="image/png, image/jpeg" multiple>
+                            </div>
+                            
+                            
+                            
+                        </div>
+                                                  
                         </div>
                     </div>
        
@@ -149,25 +154,41 @@
                 </div>
 
                 <!-- Right Side - Project Image -->
-                <div class="col-lg-6 col-md-6 col-12 d-flex justify-content-center mt-3 mt-md-0">
+
+                 <div class="col-lg-6 col-md-6 col-12 d-flex justify-content-center mt-3 mt-md-0">
                     <div class="image-stack">
-                        {% if project.images %}
-                            <img src="{{ project.images.url }}" class="image image-center" alt="{{ project.project_name }}">
-                        {% else %}
-                            <img src="{% static 'images/default.jpg' %}" class="image image-center" alt="No Image">
+
+                        {% if project.image1 %}
+                            <img src="{{ project.image1.url }}" class="image image-left">
+                        {% endif %}
+                        {% if project.image2 %}
+                            <img src="{{ project.image2.url }}" class="image image-center">
+                        {% endif %}
+                        {% if project.image3 %}
+                            <img src="{{ project.image3.url }}" class="image image-right">
                         {% endif %}
                     </div>
+                    
                 </div>
-
                 <!-- Buttons and Active Switch -->
                 <div class="col-12 mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between">
-                    <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#editProjectModal">
-                        <i class="fas fa-edit"></i> EDIT
-                    </button>
+                    <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editProjectModal"
+                    data-project-id="{{ project.id }}"
+                    data-project-name="{{ project.project_name }}"
+                    data-total-investment="{{ project.total_investment }}"
+                    data-min-roi="{{ project.min_roi }}"
+                    data-max-roi="{{ project.max_roi }}"
+                    data-project-description="{{ project.project_description }}">
+                <i class="fas fa-edit"></i> EDIT
+            </button>
+            
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" checked>
-                        <span class="fw-bold ms-2">ACTIVE</span>
+                        <input class="form-check-input toggle-status" type="checkbox" data-project-id="{{ project.id }}" {% if project.is_active %}checked{% endif %}>
+                        <span class="fw-bold ms-2">{% if project.is_active %}ACTIVE{% else %}INACTIVE{% endif %}</span>
                     </div>
+                    
                 </div>
             </div>
         </div>
@@ -185,41 +206,44 @@
             </div>
             <div class="modal-body">
                 <!-- Form inside modal -->
-                <form method="post" enctype="multipart/form-data" id="modalProjectForm">
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="hidden" name="project_id" id="modal_project_id">
+                    <input type="hidden" name="project_id" id="modal_project_id" value="{{ project.id }}">
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Project Name</label>
-                            <input type="text" name="project_name" id="modal_project_name" class="form-control bg-light" placeholder="Enter project name" required>
+                            <input type="text" name="project_name" id="modal_project_name" class="form-control bg-light" value="{{ project.project_name }}" required>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Total Investment</label>
-                            <input type="number" name="total_investment" id="modal_total_investment" class="form-control bg-light" placeholder="Enter amount" required>
+                            <input type="number" name="total_investment" id="modal_total_investment" class="form-control bg-light" required>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Min ROI (%)</label>
-                            <input type="number" name="min_roi" id="modal_min_roi" class="form-control bg-light" placeholder="Enter min ROI" step="0.01" required>
+                            <input type="number" name="min_roi" id="modal_min_roi" class="form-control bg-light" step="0.01" required>
                         </div>
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <label>Max ROI (%)</label>
-                            <input type="number" name="max_roi" id="modal_max_roi" class="form-control bg-light" placeholder="Enter max ROI" step="0.01" required>
+                            <input type="number" name="max_roi" id="modal_max_roi" class="form-control bg-light" value="{{ project.max_roi }}" step="0.01" required>
                         </div>
                     </div>
                     <br>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <label>Project Description</label>
-                            <textarea name="project_description" id="modal_project_description" class="form-control bg-light" placeholder="Enter description" rows="3" required></textarea>
+                            <textarea name="project_description" id="modal_project_description" class="form-control bg-light" rows="3" required></textarea>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <label>Upload Images</label>
-                            <div class="p-3 text-center adminprojectfile bg-light" onclick="document.getElementById('modalProjectImageUpload').click()">
+                            <div class="p-3 text-center adminprojectfile bg-light">
                                 <p class="mb-1">Drop files here</p>
                                 <small class="text-muted">Supported format: PNG, JPG</small>
-                                <input type="file" id="modalProjectImageUpload" name="images" class="form-control bg-light d-none" accept="image/png, image/jpeg">
+                                <input type="file" id="modalProjectImageUpload" name="images[]" class="form-control bg-light" accept="image/png, image/jpeg" multiple>
+                                <div id="existing_images" class="d-flex gap-2 mt-2"></div>
+
                             </div>
                         </div>
+                        
                     </div>
                     <br>
                     <div class="text-end">
@@ -229,6 +253,8 @@
             </div>
         </div>
     </div>
+</div>
+
 </div>
 </div>
 
@@ -250,6 +276,71 @@ document.querySelectorAll('.btn-warning').forEach(button => {
     });
 });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".toggle-status").forEach((toggle) => {
+            toggle.addEventListener("change", function () {
+                let projectId = this.getAttribute("data-project-id");
+                fetch(`/toggle_project_status/${projectId}/`, {
+                    method: "GET",
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        let label = this.nextElementSibling;
+                        label.textContent = data.is_active ? "ACTIVE" : "INACTIVE";
+                    }
+                });
+            });
+        });
+    });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const editModal = document.getElementById("editProjectModal");
+    
+            editModal.addEventListener("show.bs.modal", function(event) {
+                let button = event.relatedTarget;
+    
+                // Extract info from data-* attributes
+                let projectId = button.getAttribute("data-project-id");
+                let projectName = button.getAttribute("data-project-name");
+                let totalInvestment = button.getAttribute("data-total-investment");
+                let minRoi = button.getAttribute("data-min-roi");
+                let maxRoi = button.getAttribute("data-max-roi");
+                let projectDescription = button.getAttribute("data-project-description");
+    
+                // Populate form fields
+                document.getElementById("modal_project_id").value = projectId;
+                document.getElementById("modal_project_name").value = projectName;
+                document.getElementById("modal_total_investment").value = totalInvestment;
+                document.getElementById("modal_min_roi").value = minRoi;
+                document.getElementById("modal_max_roi").value = maxRoi;
+                document.getElementById("modal_project_description").value = projectDescription;
+    
+                // Load existing images
+                let existingImagesContainer = document.getElementById("existing_images");
+                existingImagesContainer.innerHTML = "";  // Clear previous images
+    
+                let imageUrls = [
+                    button.getAttribute("data-image1"),
+                    button.getAttribute("data-image2"),
+                    button.getAttribute("data-image3")
+                ];
+    
+                imageUrls.forEach(url => {
+                    if (url) {
+                        let imgElement = document.createElement("img");
+                        imgElement.src = url;
+                        imgElement.className = "existing-image-preview";  // Add styling if needed
+                        existingImagesContainer.appendChild(imgElement);
+                    }
+                });
+            });
+        });
+    </script>
+    
+        
 <!-- Add FontAwesome for icons -->
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script src="{% static 'script.js' %}"></script>

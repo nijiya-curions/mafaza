@@ -197,14 +197,15 @@
             </form>
 
 
-            <div class="col-lg-4 text-end ">
-                <a href="#" class="btn csv-btn" style="color: white;">
+            <div class="col-lg-4 text-end">
+                <a href="{% url 'export_pdf' %}" class="btn csv-btn" style="color: white;">
                     <i class="fas fa-download"></i> Export PDF
                 </a>
-                <a href="#" class="btn csv-btn" style="color: white;">
+                <a href="{% url 'export_csv' %}" class="btn csv-btn" style="color: white;">
                     <i class="fas fa-download"></i> CSV
                 </a>
             </div>
+            
         </div>
         <br><br>
         

@@ -168,16 +168,22 @@
         <div class="row">
             <div class="col-12">
                 <h5 class="fw-bold text-uppercase"><i class="fas fa-file-alt"></i> Pending Transactions</h5>
-                <div class="d-flex justify-content-between">
+               
+                <form method="GET" id="filterForm" class="d-flex justify-content-between">
                     <span></span>
-                    <select class="form-select w-25">
-                        <option selected>Type</option>
-                        <option>All</option>
-                        <option>Admin</option>
-                        <option>User</option>
+                    <select class="form-select w-25" name="user_type" onchange="this.form.submit()">
+                        <option value="All" {% if user_type == "All" %}selected{% endif %}>All</option>
+                        <option value="Admin" {% if user_type == "Admin" %}selected{% endif %}>Admin</option>
+                        <option value="User" {% if user_type == "User" %}selected{% endif %}>User</option>
                     </select>
-                </div>
-        
+                </form></div>
+
+
+
+
+
+
+
                 <div class="table-responsive mt-3">
                     <table class="table">
                         <thead class="table-light">

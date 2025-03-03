@@ -90,13 +90,16 @@ class UserProfileUpdateForm(forms.ModelForm):
 
 
 # project form
+
 class InvestmentProjectForm(forms.ModelForm):
+    image1 = forms.ImageField(required=False)
+    image2 = forms.ImageField(required=False)
+    image3 = forms.ImageField(required=False)
+
     class Meta:
         model = InvestmentProject
-        fields = ['project_name', 'total_investment', 'min_roi', 'max_roi', 'project_description', 'images']
-        widgets = {
-            'project_description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
-        }
+        fields = ['project_name', 'total_investment', 'min_roi', 'max_roi', 'project_description', 'image1', 'image2', 'image3']
+
 
 
 class TransactionForm(forms.ModelForm):

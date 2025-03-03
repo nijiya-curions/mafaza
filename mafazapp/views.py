@@ -393,7 +393,6 @@ def admin_required(user):
     return user.is_authenticated and user.is_staff
 
 @user_passes_test(admin_required, login_url='login')
-
 def admintransaction(request):
     if request.method == "POST":
         form = TransactionForm(request.POST, request.FILES)
@@ -406,13 +405,24 @@ def admintransaction(request):
     else:
         form = TransactionForm()
 
-    # Fetching projects and pending transactions
+    # Fetching projects
     projects = InvestmentProject.objects.all()
-    pending_transactions = Transaction.objects.filter(status="pending").order_by('-date')
+
+    # Get filter option from request
+    user_type = request.GET.get("user_type", "All")  # Default to "All"
+
+    # Base query for pending transactions
+    transactions_query = Transaction.objects.filter(status="pending").order_by('-date')
+
+    # Apply filter
+    if user_type == "Admin":
+        transactions_query = transactions_query.filter(user__is_staff=True)  # Filter admins
+    elif user_type == "User":
+        transactions_query = transactions_query.filter(user__is_staff=False)  # Filter normal users
 
     # Pagination
     page = request.GET.get('page', 1)
-    paginator = Paginator(pending_transactions, 10)  # Show 10 transactions per page
+    paginator = Paginator(transactions_query, 10)  # Show 10 transactions per page
 
     try:
         transactions = paginator.page(page)
@@ -427,10 +437,10 @@ def admintransaction(request):
         "users": User.objects.all(),
         "projects": projects,
         "transactions": transactions,  # Use the paginated transactions
+        "user_type": user_type,  # Pass the selected filter to the template
     }
 
     return render(request, "admintransaction.html", context)
-
 
 
 @user_passes_test(admin_required, login_url='login')
@@ -540,34 +550,68 @@ from django.http import JsonResponse
 @user_passes_test(admin_required, login_url='home')
 @never_cache
 def adminprojects(request):
-    if request.method == "POST":   
+    if request.method == "POST":
         project_id = request.POST.get('project_id')
+        uploaded_images = request.FILES.getlist('images[]')  # Get all uploaded images
+
         if project_id:
             project = get_object_or_404(InvestmentProject, id=project_id)
-            form = InvestmentProjectForm(request.POST, request.FILES, instance=project)
+            form = InvestmentProjectForm(request.POST, instance=project)
         else:
-            form = InvestmentProjectForm(request.POST, request.FILES)
-        
+            form = InvestmentProjectForm(request.POST)
+
         if form.is_valid():
-            form.save()
+            project = form.save(commit=False)  # Do not save yet
+
+            # Assign images manually
+            if len(uploaded_images) > 0:
+                project.image1 = uploaded_images[0]
+            if len(uploaded_images) > 1:
+                project.image2 = uploaded_images[1]
+            if len(uploaded_images) > 2:
+                project.image3 = uploaded_images[2]
+
+            project.save()  # Save with images
             return redirect('adminprojects')
+
     else:
         form = InvestmentProjectForm()
 
     projects = InvestmentProject.objects.all()
     return render(request, 'adminprojects.html', {'form': form, 'projects': projects})
 
-def get_project(request, project_id):
+# Handle Active/Inactive Toggle
+def toggle_project_status(request, project_id):
     project = get_object_or_404(InvestmentProject, id=project_id)
-    data = {
-        'id': project.id,
-        'project_name': project.project_name,
-        'total_investment': project.total_investment,
-        'min_roi': project.min_roi,
-        'max_roi': project.max_roi,
-        'project_description': project.project_description,
-    }
-    return JsonResponse(data)
+    project.is_active = not project.is_active
+    project.save()
+    return JsonResponse({'status': 'success', 'is_active': project.is_active})
+
+def edit_project(request, project_id):
+    project = get_object_or_404(InvestmentProject, id=project_id)
+
+    if request.method == "POST":
+        form = InvestmentProjectForm(request.POST, instance=project)
+        uploaded_images = request.FILES.getlist('images[]')  # Get multiple uploaded images
+
+        if form.is_valid():
+            project = form.save(commit=False)  # Don't save yet
+
+            # Assign images manually while keeping old ones if no new image is uploaded
+            if len(uploaded_images) > 0:
+                project.image1 = uploaded_images[0]  # First image
+            if len(uploaded_images) > 1:
+                project.image2 = uploaded_images[1]  # Second image
+            if len(uploaded_images) > 2:
+                project.image3 = uploaded_images[2]  # Third image
+            
+            project.save()  # Now save the project with updated images
+            return redirect('project_list')
+
+    else:
+        form = InvestmentProjectForm(instance=project)
+
+    return render(request, 'edit_project.html', {'form': form, 'project': project})
 
 # forgot password
 
@@ -719,3 +763,81 @@ def assigned_projects(request):
         'form': form
     }) 
                        
+
+# view for download admindashboard
+
+import csv
+from django.http import HttpResponse
+from django.shortcuts import render
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from django.db.models import Q
+from .models import Transaction  # Import your model
+
+
+def export_transactions_csv(request):
+    """Export Transactions as CSV (Excel) File"""
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="transactions.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["DATE", "NAME", "PROJECT", "CREDIT", "DEBIT", "STATUS"])
+
+    transactions = Transaction.objects.select_related("user", "project").filter(~Q(status="pending"))
+
+    for transaction in transactions:
+        writer.writerow([
+            transaction.date.strftime("%d-%m-%Y"),
+            transaction.user.get_full_name(),
+            transaction.project.project_name,
+            transaction.amount if transaction.transaction_type == "investment" else "-",
+            transaction.amount if transaction.transaction_type == "withdrawal" else "-",
+            transaction.status.upper()
+        ])
+
+    return response
+
+
+def export_transactions_pdf(request):
+    """Export Transactions as PDF File"""
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="transactions.pdf"'
+
+    # Create PDF
+    pdf = canvas.Canvas(response, pagesize=letter)
+    pdf.setTitle("Transactions Report")
+
+    # Title
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(200, 750, "Transactions Report")
+
+    # Table Headers
+    pdf.setFont("Helvetica-Bold", 10)
+    headers = ["DATE", "NAME", "PROJECT", "CREDIT", "DEBIT", "STATUS"]
+    x_offset = 50
+    y_offset = 700
+
+    for i, header in enumerate(headers):
+        pdf.drawString(x_offset + (i * 90), y_offset, header)
+
+    # Table Data
+    pdf.setFont("Helvetica", 10)
+    transactions = Transaction.objects.select_related("user", "project").filter(~Q(status="pending"))
+
+    for index, transaction in enumerate(transactions):
+        y_offset -= 20
+        pdf.drawString(50, y_offset, transaction.date.strftime("%d-%m-%Y"))
+        pdf.drawString(140, y_offset, transaction.user.get_full_name())
+        pdf.drawString(230, y_offset, transaction.project.project_name)
+        pdf.drawString(320, y_offset, str(transaction.amount) if transaction.transaction_type == "investment" else "-")
+        pdf.drawString(410, y_offset, str(transaction.amount) if transaction.transaction_type == "withdrawal" else "-")
+        pdf.drawString(500, y_offset, transaction.status.upper())
+
+        # Prevent writing beyond the page
+        if y_offset < 50:
+            pdf.showPage()
+            pdf.setFont("Helvetica", 10)
+            y_offset = 750
+
+    pdf.save()
+    return response
