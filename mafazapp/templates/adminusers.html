@@ -257,8 +257,7 @@
         <span class="text-muted">No Requests</span>
     {% endif %}
 </td>
-
-                    
+       
             </tr>
                {% endfor %}
                         </tbody>
@@ -333,32 +332,31 @@
             </div>
 
             <div class="modal-body">
-                <form id="assignProjectForm" method="POST" action="{% url 'adminusers' %}">
+                <form id="assignProjectForm" method="POST" action="{% url 'assign_project' %}">
                     {% csrf_token %}
-                    <input type="hidden" name="action" value="assign_project">  
-                    <input type="hidden" id="user_id" name="user_id">
-                
+                    <input type="hidden" name="user_id" id="user_id">
+                    
                     <div class="row">
                         <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                             <label class="form-label">INVESTOR</label>
                             <input type="text" id="username" class="form-control" readonly>
                         </div>
-                
+            
                         <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                             <label class="form-label">Project</label>
-                            <select class="form-select" name="project">
+                            <select class="form-select" name="project_id">
                                 <option selected disabled>Select Project</option>
                                 {% for project in projects %}
                                 <option value="{{ project.id }}">{{ project.project_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                
+            
                         <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                             <label class="form-label">ROI</label>
                             <input type="text" class="form-control" name="roi" placeholder="Enter ROI (optional)">
                         </div>
-                
+            
                         <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
                             <label class="form-label">Return Period</label>
                             <select class="form-select" name="return_period">
@@ -369,29 +367,14 @@
                             </select>
                         </div>
                     </div>
-                
+            
                     <div class="text-end">
                         <button type="submit" class="btn csv-btn">Assign Project</button>
                     </div>
                 </form>
-     
                 <hr>
 
                 <h5><i class="fas fa-file-alt"></i> ASSIGNED PROJECTS</h5>
-                <!-- <table class="table">
-                    <thead class="table-light">
-                        <tr>
-                            <th>PROJECT NAME</th>
-                            <th>ROI</th>
-                            <th>TOTAL INVESTMENT</th>
-                            <th>TOTAL RETURN</th>
-                            <th>EDIT ROI</th>
-                        </tr>
-                    </thead>
-                    <tbody id="assignedProjectsTableBody">
-                    </tbody>
-                </table> -->
-
                 <table class="table">
                     <thead class="table-light">
                         <tr>
@@ -404,19 +387,18 @@
                     </thead>
                     <tbody id="assignedProjectsTableBody">
                         {% for assignment in assigned_projects %}
-    <tr>
-        <td>{{ assignment.project }}</td>
-        <td>{{ assignment.project.project_name|default:"No Name" }}</td>
-        <td>{{ assignment.project.total_investment|default:"N/A" }}</td>
-        <td>{{ assignment.project.total_return|default:"N/A" }}</td>
-        <td>{{ assignment.roi|default:"N/A" }}</td>
-    </tr>
-{% empty %}
-    <tr><td colspan="5">No assigned projects found.</td></tr>
-{% endfor %}
-
-            </tbody>
-            </table>
+                            <tr>
+                                <td>{{ assignment.project.project_name|default:"No Name" }}</td>
+                                <td>{{ assignment.roi|default:"N/A" }}</td>
+                                <td>{{ assignment.project.total_investment|default:"N/A" }}</td>
+                                <td>{{ assignment.project.total_return|default:"N/A" }}</td>
+                                <td><a href="{% url 'edit_roi' assignment.id %}">Edit ROI</a></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5">No assigned projects found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
 
             <div class="modal-footer">
@@ -426,10 +408,8 @@
     </div>
 </div>
 
-
-                        
         <script>
-                        // JavaScript for Sidebar Toggle
+          // JavaScript for Sidebar Toggle
                 document.getElementById("toggleSidebar").addEventListener("click", function() {
                     var sidebar = document.getElementById("sidebar");
                     var toggleButton = document.getElementById("toggleSidebar");
@@ -443,13 +423,14 @@
                     }
                 });
       </script>
-      <script>
+    
+     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll(".assign-btn").forEach(button => {
                 button.addEventListener("click", function() {
                     let userId = this.getAttribute("data-user-id");
                     let username = this.getAttribute("data-username");
-    
+
                     // Update Hidden Input and Username Field
                     document.getElementById("user_id").value = userId;
                     document.getElementById("username").value = username;

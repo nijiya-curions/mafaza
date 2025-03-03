@@ -20,6 +20,8 @@ urlpatterns = [
     path('admin/transactions/approve/<int:transaction_id>/', views.approve_transaction, name='approve_transaction'),
     path('admin/transactions/reject/<int:transaction_id>/', views.reject_transaction, name='reject_transaction'),
     path('userledger/', views.userledger, name='userledger'),
+   path('userledger/<uuid:user_id>/', views.userledger, name='userledger'),
+
     path('adminprojects/', views.adminprojects, name='adminprojects'),
     path('projects/<int:project_id>/', views.get_project, name='get_project'),
 
@@ -34,6 +36,7 @@ urlpatterns = [
 # 
     path('admin/users/<uuid:user_id>/documents/', views.admin_user_documents, name='admin_user_documents'),
     path('admin/users/documents/delete/<int:document_id>/', views.admin_delete_document, name='admin_delete_document'),
+
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

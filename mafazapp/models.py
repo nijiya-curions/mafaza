@@ -61,37 +61,40 @@ class Transaction(models.Model):
     ]
 
     date = models.DateField(auto_now_add=True)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="transactions") 
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     project = models.ForeignKey(InvestmentProject, on_delete=models.CASCADE)
     transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
     narration = models.TextField()
     receipt = models.ImageField(upload_to='receipts/', blank=True, null=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  # New field for approval status
-
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  
 
     def __str__(self):
         return f"{self.user} - {self.transaction_type} - {self.amount}"
 
 
+User = get_user_model()
 
 class UserProjectAssignment(models.Model):
+    
     RETURN_PERIOD_CHOICES = [
+
         ('5m', '5 Minutes'),
         ('10m', '10 Minutes'),
         ('monthly', 'Monthly'),
         ('quarterly', 'Quarterly'),
         ('semiannual', 'Semiannual'),
         ('annual', 'Annual'),
-    ]
 
+    ]
+      
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     project = models.ForeignKey('InvestmentProject', on_delete=models.CASCADE, related_name='assigned_users')
     roi = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Custom ROI")
     return_period = models.CharField(max_length=20, choices=RETURN_PERIOD_CHOICES, default='5m')  # New field
 
     def get_effective_return(self):
-        """Return the assigned ROI or default to project's ROI."""
+        """ Return the assigned ROI or default to project's ROI. """
         if self.roi is not None:
             return self.roi
         return (
@@ -99,10 +102,11 @@ class UserProjectAssignment(models.Model):
             if hasattr(self.project, 'return_type') and self.project.return_type == 'fixed'
             else getattr(self.project, 'min_return_percentage', None)
         )
-
+ 
     def __str__(self):
         return f"{self.user.username} - {self.project.project_name} ({self.get_effective_return()}%) - {self.get_return_period_display()}"
-
+ 
+   
 # user document
 class UserDocument(models.Model):
     DOCUMENT_TYPES = [
@@ -121,3 +125,4 @@ class UserDocument(models.Model):
         return f"{self.user.username} - {self.get_document_type_display()}"
 
 
+ 

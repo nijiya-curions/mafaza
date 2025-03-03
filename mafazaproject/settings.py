@@ -142,3 +142,5 @@ CACHE_MIDDLEWARE_KEY_PREFIX = ''  # Optional
 SESSION_COOKIE_AGE = 1209600  # Two weeks
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session active when the browser is closed
 
+# settings.py
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis as the message broker

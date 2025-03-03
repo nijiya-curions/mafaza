@@ -128,8 +128,6 @@ class UserProjectAssignmentForm(forms.ModelForm):
         super(UserProjectAssignmentForm, self).__init__(*args, **kwargs)
         self.fields['roi'].widget.attrs.update({'placeholder': 'Enter ROI (optional)'})
         self.fields['return_period'].widget.attrs.update({'class': 'form-select'})
-
-
         
  
 from .models import UserDocument

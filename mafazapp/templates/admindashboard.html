@@ -132,12 +132,11 @@
                         <i class="fas fa-cog settings-icon" data-bs-toggle="modal" data-bs-target="#profileUpdateModal" style="cursor: pointer;"></i>
 
                     </div>
-        
                 </div> 
             </div>
         </div>
         
-                <br><br><br>
+    <br><br><br>
 
         <div class="row card1">
 
@@ -192,11 +191,11 @@
                 </h5>
             </div>
             
-
-            <div class="col-lg-4 search-container">
+            <form method="GET" action="{% url 'admindashboard' %}" class="col-lg-4 search-container">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" name="search" placeholder="Search..." class="search-bar">
-            </div>
+                <input type="text" name="search" placeholder="Search..." class="search-bar" value="{{ search_query }}">
+            </form>
+
 
             <div class="col-lg-4 text-end ">
                 <a href="#" class="btn csv-btn" style="color: white;">
@@ -261,8 +260,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                
-
 
             </div>
         </div>
@@ -303,8 +300,6 @@
                 </nav>
             </div>
         </div>
-        
-
 
     </div>
 </div>

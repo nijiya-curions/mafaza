@@ -114,6 +114,7 @@
     <div class="container-fluid" >
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12 "> 
+                <div class="card p-3">
                 <h2 class="text-center">Welcome, {{ request.user.first_name }}</h2>
 
                     <div style="display: flex; justify-content: flex-end; font-size: 25px; margin-top: -40px; padding-bottom: 10px;">
@@ -122,8 +123,11 @@
                     <a href="{% url 'document_list' %}" style="color: hsl(0, 0%, 2%);" > 
                         <button class="btn csv-btn">Documents</button> 
                     </a>
-                </div> 
-                </div></div><br><br><br>
+                </div>
+             </div>     
+        </div>
+    </div>
+        <br><br><br>
 
         <div class="row card1">
 
@@ -190,9 +194,9 @@
         </div><br><br>
         
 
-        <div class="row mt-4">
-            <div class="col-12">
-                <table class="table">
+    <div class="row mt-4">
+    <div class="col-12">
+    <table class="table">
     <thead class="table-light">
         <tr>
             <th>Date</th>
@@ -225,34 +229,42 @@
     </tbody>
     
 </table>
-
-                
-            </div>
-        </div>
+     
+     </div>
+ </div>
 
         <div class="row mt-4">
-            <div class="col-6" >
-                <p>63 results</p>
+            <div class="col-6">
+                <p>{{ transactions.paginator.count }} results</p>
+            </div>
+            <div class="col-6">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end">
+                        {% if transactions.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ transactions.previous_page_number }}">&lt;</a></li>
+                        {% else %}
+                            <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
+                        {% endif %}
+    
+                        {% for num in transactions.paginator.page_range %}
+                            {% if transactions.number == num %}
+                                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+    
+                        {% if transactions.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ transactions.next_page_number }}">&gt;</a></li>
+                        {% else %}
+                            <li class="page-item disabled"><a class="page-link" href="#">&gt;</a></li>
+                        {% endif %}
+                       </ul>
+                   </nav>
                 </div>
-            <div class="col-6" >
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-                <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-            </ul>
-        </nav>   </div></div>
-
-
-    </div>
-</div>
-
-
-
-
-
-
+         </div>
+     </div>
+ </div>
 
 
     <script>

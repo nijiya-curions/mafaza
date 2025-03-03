@@ -111,6 +111,7 @@ def admin_required(user):
 # user dashboard
 @user_login_required
 @never_cache
+
 def userdashboard(request):
     user = request.user  # Get the logged-in user
     form = UserProfileUpdateForm(instance=user)
@@ -143,6 +144,11 @@ def userdashboard(request):
     # **Transaction History**
     transactions = Transaction.objects.filter(user=user).order_by('-date')
 
+    # Pagination
+    paginator = Paginator(transactions, 10)  # Show 10 transactions per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     # **Calculations**
     total_investments = transactions.filter(transaction_type="investment", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
     total_withdrawals = transactions.filter(transaction_type="withdrawal", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
@@ -166,7 +172,7 @@ def userdashboard(request):
         "total_roi": total_roi_percentage,  # ROI in percentage
         "total_projects": total_projects,
         "total_withdrawals": total_withdrawals,
-        "transactions": transactions,
+        "transactions": page_obj,  # Use the page_obj for pagination
     }
 
     return render(request, "userdashboard.html", context)
@@ -239,12 +245,22 @@ def admindashboard(request):
     total_withdrawals = Transaction.objects.filter(transaction_type="withdrawal").aggregate(Sum("amount"))["amount__sum"] or 0
     cash_circulation = total_investments - total_withdrawals  
 
-    active_users = User.objects.filter(is_active=True).count()
+    active_users = get_user_model().objects.filter(is_active=True).count()
     total_projects = InvestmentProject.objects.count()  
 
-    # Fetch all transactions to display in the table with pagination
-    transactions_list = Transaction.objects.select_related("user", "project").order_by("-date")
-    paginator = Paginator(transactions_list, 5)  # Show 10 transactions per page
+    # Handle search query
+    search_query = request.GET.get("search", "")
+    if search_query:
+        transactions_list = Transaction.objects.select_related("user", "project").filter(
+            Q(user__username__icontains=search_query) |
+            Q(project__project_name__icontains=search_query)
+        ).order_by("-date")
+    else:
+        transactions_list = Transaction.objects.select_related("user", "project").filter(
+            ~Q(status="pending")
+        ).order_by("-date")
+
+    paginator = Paginator(transactions_list, 5)  # Show 5 transactions per page
     page = request.GET.get("page")
 
     try:
@@ -263,11 +279,12 @@ def admindashboard(request):
         "total_projects": total_projects,
         "total_withdrawals": total_withdrawals,
         "transactions": transactions,  # Paginated transactions
+        "search_query": search_query,  # Pass the search query to the template
     }
 
     return render(request, "admindashboard.html", context)
 
- 
+
 # admin users
 @user_passes_test(admin_required, login_url='home')
 @never_cache
@@ -438,24 +455,84 @@ def reject_transaction(request, transaction_id):
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
-def userledger(request):
-    transactions_list = Transaction.objects.all().select_related("user", "project").order_by('-date')
+def userledger(request, user_id=None):
+    # Get filter type from request
+    filter_type = request.GET.get("filter", "All")  # Default is "All"
+
+    # Get distinct users with at least one transaction
+    users_with_transactions = CustomUser.objects.filter(
+        transactions__isnull=False
+    ).distinct()
+
+    # Apply filter using is_staff
+    if filter_type == "Admin":
+        users_with_transactions = users_with_transactions.filter(is_staff=True)  # Admins
+    elif filter_type == "User":
+        users_with_transactions = users_with_transactions.filter(is_staff=False)  # Normal users
+
+    # Get only the latest transaction for each user
+    latest_transactions = []
+    for user in users_with_transactions:
+        latest_transaction = (
+            Transaction.objects.filter(user=user).order_by("-date").first()
+        )
+        if latest_transaction:
+            latest_transactions.append(latest_transaction)
+
+    # If user_id is provided, get all transactions for that user
+    ledger_data = None
+    selected_user = None
+    if user_id:
+        selected_user = get_object_or_404(CustomUser, id=user_id)
+        ledger_data = Transaction.objects.filter(user=selected_user).order_by("date")
+
+        # Calculate running balance and total withdrawal
+        running_balance = 0
+        total_withdrawal = 0
+        for transaction in ledger_data:
+            if transaction.transaction_type == "investment":
+                running_balance += transaction.amount
+            elif transaction.transaction_type == "withdrawal":
+                running_balance -= transaction.amount
+                total_withdrawal += transaction.amount  
+            transaction.running_balance = running_balance  # Attach running balance to transaction
+
+    # Paginate latest transactions (only one per user)
+    paginator = Paginator(latest_transactions, 5)
+    page_number = request.GET.get("page")
+    transactions_page = paginator.get_page(page_number)
+
+    return render(request, "userledger.html", {
+        "transactions": transactions_page,
+        "ledger_data": ledger_data,
+        "selected_user": selected_user,
+        "filter_type": filter_type,  # Pass filter type to template
+    })
+
+
+
+
+
+# def userledger(request):
+#     transactions_list = Transaction.objects.all().select_related("user", "project").order_by('-date')
     
-    # Pagination
-    paginator = Paginator(transactions_list, 5)  
-    page = request.GET.get("page")
+#     # Pagination
+#     paginator = Paginator(transactions_list, 5)  
+#     page = request.GET.get("page")
 
-    try:
-        transactions = paginator.page(page)
-    except PageNotAnInteger:
-        transactions = paginator.page(1)
-    except EmptyPage:
-        transactions = paginator.page(paginator.num_pages)
+#     try:
+#         transactions = paginator.page(page)
+#     except PageNotAnInteger:
+#         transactions = paginator.page(1)
+#     except EmptyPage:
+#         transactions = paginator.page(paginator.num_pages)
 
-    context = {
-        "transactions": transactions,
-    }
-    return render(request, "userledger.html", context)
+#     context = {
+#         "transactions": transactions,
+#     }
+#     return render(request, "userledger.html", context)
+
+
 
 # admin projects
 from django.http import JsonResponse
@@ -611,6 +688,7 @@ def assign_project(request):
         user_id = request.POST.get('user_id')
         project_id = request.POST.get('project_id')
         roi = request.POST.get('roi')
+        return_period = request.POST.get('return_period')
 
         User = get_user_model()
         user = get_object_or_404(User, id=user_id)  # Get the selected user
@@ -619,20 +697,25 @@ def assign_project(request):
         # Assign project to the user
         assignment, created = UserProjectAssignment.objects.get_or_create(user=user, project=project)
         assignment.roi = roi  # Update ROI
+        assignment.return_period = return_period  # Update return period
         assignment.save()
 
         messages.success(request, f"Project {project.project_name} assigned to {user.username} with ROI {roi}.")
         return redirect('adminusers')  # Redirect to admin dashboard or assigned projects page
 
-    return redirect('adminusers')  
-
+    return redirect('adminusers')
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
-def assigned_projects(request):
-    User = get_user_model()
+def assigned_projects(request): 
     assigned_projects = UserProjectAssignment.objects.filter(user=request.user)
-    if not assigned_projects:
-        assigned_projects = UserProjectAssignment.objects.filter(user=User.objects.first())  # Test with first user
-    return render(request, 'adminusers.html', {'assigned_projects': assigned_projects})
+    projects = InvestmentProject.objects.all()  # Assuming you want to list all projects
+      
+    form = UserProjectAssignmentForm()  # Initialize the form
 
+    return render(request, 'adminusers.html', {
+        'assigned_projects': assigned_projects,
+        'projects': projects,
+        'form': form
+    }) 
+                       
