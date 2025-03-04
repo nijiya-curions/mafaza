@@ -113,69 +113,68 @@ def admin_required(user):
 @never_cache
 
 def userdashboard(request):
-    user = request.user  # Get the logged-in user
+    user = request.user  
     form = UserProfileUpdateForm(instance=user)
 
     if request.method == "POST":
         form = UserProfileUpdateForm(request.POST, instance=user)
         if form.is_valid():
-            updated_user = form.save(commit=False)  # Don't commit yet
-
-            # Check if username, email, or password was changed
-            username_changed = updated_user.username != user.username
-            email_changed = updated_user.email != user.email
-            password_changed = form.cleaned_data.get("password") != ""
-
-            updated_user.save()  # Now save the changes
-
-            # If username, email, or password changed, re-authenticate the user
-            if username_changed or email_changed or password_changed:
-                user = authenticate(
-                    request, username=updated_user.username, password=form.cleaned_data.get("password") or user.password
-                )
-                if user:
-                    login(request, user)  # Log them in with updated credentials
-                    messages.success(request, "Profile updated! Please log in again.")
-                    return redirect("login")  # Redirect to login page for security
-
+            updated_user = form.save(commit=False)
+            updated_user.save()
             messages.success(request, "Profile updated successfully!")
-            return redirect("userdashboard")  # Refresh the page
+            return redirect("userdashboard")
 
-    # **Transaction History**
-    transactions = Transaction.objects.filter(user=user).order_by('-date')
+    # **Search Functionality**
+    search_query = request.GET.get("search", "").strip()
+    all_transactions = Transaction.objects.filter(user=user).order_by("date")  
 
-    # Pagination
-    paginator = Paginator(transactions, 10)  # Show 10 transactions per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    if search_query:
+        all_transactions = all_transactions.filter(
+            Q(project__project_name__icontains=search_query) |
+            Q(narration__icontains=search_query) |
+            Q(transaction_type__icontains=search_query) |
+            Q(amount__icontains=search_query)
+        )
+
+    # **Apply Pagination**
+    paginator = Paginator(all_transactions, 10)  # Show 10 per page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)  
 
     # **Calculations**
-    total_investments = transactions.filter(transaction_type="investment", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
-    total_withdrawals = transactions.filter(transaction_type="withdrawal", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
-
-    # **Calculate Total ROI as the sum of all assigned ROI values**
+    total_investments = all_transactions.filter(transaction_type="investment", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
+    total_withdrawals = all_transactions.filter(transaction_type="withdrawal", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
     user_projects = UserProjectAssignment.objects.filter(user=user)
-    total_roi_percentage = sum(assignment.roi or 0 for assignment in user_projects)  # Sum of all user-assigned ROI percentages
-
-    # **Convert ROI percentage to actual value**
+    total_roi_percentage = sum(assignment.roi or 0 for assignment in user_projects)
     total_returns = (total_roi_percentage / 100) * total_investments if total_investments > 0 else 0
-
-    # **Other calculations**
-    cash_circulation = total_investments - total_withdrawals  # Simple cash flow calculation
+    cash_circulation = total_investments - total_withdrawals
     total_projects = InvestmentProject.objects.filter(transaction__user=user).distinct().count()
+
+    # **Compute Returns & Running Balance**
+    running_balance = 0  
+    for transaction in page_obj:  # Process only paginated transactions
+        transaction.returns = (total_roi_percentage / 100) * transaction.amount if transaction.transaction_type == "investment" else 0
+        if transaction.transaction_type == "investment":
+            running_balance += transaction.amount
+        elif transaction.transaction_type == "withdrawal":
+            running_balance -= transaction.amount
+        transaction.balance = running_balance  # Assign balance
 
     context = {
         "form": form,
         "total_investments": total_investments,
-        "total_returns": total_returns,  # Now converted from ROI percentage to actual value
+        "total_returns": total_returns,
         "cash_circulation": cash_circulation,
-        "total_roi": total_roi_percentage,  # ROI in percentage
+        "total_roi": total_roi_percentage,
         "total_projects": total_projects,
         "total_withdrawals": total_withdrawals,
-        "transactions": page_obj,  # Use the page_obj for pagination
+        "transactions": page_obj,  
+        "search_query": search_query,  # Pass search query to template
     }
 
     return render(request, "userdashboard.html", context)
+
+
 
 # user transaction 
 
@@ -841,3 +840,99 @@ def export_transactions_pdf(request):
 
     pdf.save()
     return response
+
+
+# userdashboard download
+import io
+from django.http import FileResponse
+from django.contrib.auth.decorators import login_required
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.db.models import Sum
+from .models import Transaction, UserProjectAssignment, InvestmentProject
+
+@login_required
+def download_transactions_pdf(request):
+    user = request.user
+    transactions = Transaction.objects.filter(user=user).order_by("date")  # Oldest first for balance calculation
+
+    # **Calculations**
+    total_investments = transactions.filter(transaction_type="investment", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
+    total_withdrawals = transactions.filter(transaction_type="withdrawal", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
+    user_projects = UserProjectAssignment.objects.filter(user=user)
+    total_roi_percentage = sum(assignment.roi or 0 for assignment in user_projects)
+    total_returns = (total_roi_percentage / 100) * total_investments if total_investments > 0 else 0
+    cash_circulation = total_investments - total_withdrawals
+    total_projects = InvestmentProject.objects.filter(transaction__user=user).distinct().count()
+
+    # **Generate PDF**
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # **Title**
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(200, height - 50, "Transaction Report")
+
+    # **Table Headers**
+    y_position = height - 100
+    p.setFont("Helvetica-Bold", 10)
+    headers = ["Date", "Project", "Narration", "Investment", "Returns", "Withdrawal", "Balance"]
+    x_positions = [50, 120, 200, 320, 400, 470, 540]
+
+    for i, header in enumerate(headers):
+        p.drawString(x_positions[i], y_position, header)
+
+    y_position -= 20
+    p.setFont("Helvetica", 9)
+
+    # **Balance Calculation**
+    running_balance = 0
+
+    for transaction in transactions:
+        # **Compute Returns for Investments**
+        calculated_return = (total_roi_percentage / 100) * transaction.amount if transaction.transaction_type == "investment" else 0
+
+        # **Update Balance**
+        if transaction.transaction_type == "investment":
+            running_balance += transaction.amount
+        elif transaction.transaction_type == "withdrawal":
+            running_balance -= transaction.amount
+
+        if y_position < 50:  # Add a new page if needed
+            p.showPage()
+            y_position = height - 50
+            p.setFont("Helvetica-Bold", 10)
+            for i, header in enumerate(headers):
+                p.drawString(x_positions[i], y_position, header)
+            y_position -= 20
+            p.setFont("Helvetica", 9)
+
+        p.drawString(x_positions[0], y_position, transaction.date.strftime("%d-%b-%Y"))
+        p.drawString(x_positions[1], y_position, transaction.project.project_name)
+        p.drawString(x_positions[2], y_position, transaction.narration)
+        p.drawString(x_positions[3], y_position, str(transaction.amount) if transaction.transaction_type == "investment" else "-")
+        p.drawString(x_positions[4], y_position, str(calculated_return) if calculated_return else "-")
+        p.drawString(x_positions[5], y_position, str(transaction.amount) if transaction.transaction_type == "withdrawal" else "-")
+        p.drawString(x_positions[6], y_position, str(running_balance))
+
+        y_position -= 20
+
+    # **Summary Section**
+    y_position -= 30
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, y_position, f"Total Investments: {total_investments}")
+    p.drawString(250, y_position, f"Total Returns: {total_returns}")
+    p.drawString(450, y_position, f"Total Withdrawals: {total_withdrawals}")
+
+    y_position -= 20
+    p.drawString(50, y_position, f"Cash Circulation: {cash_circulation}")
+    p.drawString(250, y_position, f"Total ROI: {total_roi_percentage}%")
+    p.drawString(450, y_position, f"Total Projects: {total_projects}")
+
+    p.showPage()
+    p.save()
+
+    # **Send as File Download**
+    buffer.seek(0)
+    return FileResponse(buffer, as_attachment=True, filename="transactions.pdf")

@@ -40,5 +40,6 @@ urlpatterns = [
    path("export/csv/", views.export_transactions_csv, name="export_csv"),
     path("export/pdf/", views.export_transactions_pdf, name="export_pdf"),
     path('toggle_project_status/<int:project_id>/', views.toggle_project_status, name='toggle_project_status'),
+    path("download-pdf/", views.download_transactions_pdf, name="download_transactions_pdf"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
