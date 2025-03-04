@@ -100,142 +100,95 @@
         </div>
     </div>
 
-    <div class="container userproject mt-4 ">
-        <!-- Invested Projects Section -->
+    <div class="container userproject mt-4">
         <h4 class="fw-bold"><i class="fa-solid fa-landmark"></i> INVESTED PROJECTS</h4>
         <div id="projectCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
-                <!-- Slide 1 -->
-                <div class="carousel-item active">
-                    <div class="row">
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                            <div class="card border-0 shadow-sm">
-                                <img src="{% static 'images/mimg1.jpg' %}" class="card-img-top" alt="New York">
-                                <div class="card-body">
-                                    <h6 class="fw-bold">New York</h6>
-                                    <p class="text-muted small">2,345 properties • 746 miles away</p>
+                {% for projects in assigned_projects|slice:":4" %}
+                    {% if forloop.counter0|divisibleby:4 %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <div class="row">
+                    {% endif %}
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+                                <div class="card border-0 shadow-sm">
+                                    <img src="{{ projects.project.image1.url }}" class="card-img-top" alt="{{ projects.project.project_name }}">
+                                    <div class="card-body">
+                                        <h6 class="fw-bold">{{ projects.project.project_name }}</h6>
+                                        <p class="text-muted small">ROI: {{ projects.get_effective_return }}%</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                            <div class="card border-0 shadow-sm">
-                                <img src="{% static 'images/mimg2.jpg' %}" class="card-img-top" alt="Maldives">
-                                <div class="card-body">
-                                    <h6 class="fw-bold">Maldives</h6>
-                                    <p class="text-muted small">3,456 properties • 9,206 miles away</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                            <div class="card border-0 shadow-sm">
-                                <img src="{% static 'images/mimg3.jpg' %}" class="card-img-top" alt="Bhutan">
-                                <div class="card-body">
-                                    <h6 class="fw-bold">Bhutan</h6>
-                                    <p class="text-muted small">4,567 properties • 8,189 miles away</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                            <div class="card border-0 shadow-sm">
-                                <img src="{% static 'images/mimg1.jpg' %}" class="card-img-top" alt="Amsterdam">
-                                <div class="card-body">
-                                    <h6 class="fw-bold">Amsterdam</h6>
-                                    <p class="text-muted small">6,879 properties • 4,059 miles away</p>
-                                </div>
-                            </div>
+                    {% if forloop.counter|divisibleby:4 or forloop.last %}
                         </div>
                     </div>
-                </div>
-                <!-- Slide 2 -->
-                <div class="carousel-item">
-                    <div class="row">
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                            <div class="card border-0 shadow-sm">
-                                <img src="{% static 'images/mimg1.jpg' %}" class="card-img-top" alt="Paris">
-                                <div class="card-body">
-                                    <h6 class="fw-bold">Paris</h6>
-                                    <p class="text-muted small">5,123 properties • 3,000 miles away</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Add three more cards here for slide 2 -->
-                    </div>
-                </div>
-                <!-- Add more slides as needed -->
+                    {% endif %}
+                {% endfor %}
             </div>
-            <!-- Pagination Dots -->
-           <div id="projectCarousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        <!-- Your slides go here -->
+    
+            <!-- Custom Round Indicators -->
+            <div class="carousel-indicators">
+                {% for projects in assigned_projects|slice:":4" %}
+                    <div class="indicator {% if forloop.first %}active{% endif %}" data-bs-target="#projectCarousel" data-bs-slide-to="{{ forloop.counter0 }}"></div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-
-    <!-- Custom Round Indicators -->
-    <div class="carousel-indicators">
-        <div class="indicator active" data-bs-target="#projectCarousel" data-bs-slide-to="0"></div>
-        <div class="indicator" data-bs-target="#projectCarousel" data-bs-slide-to="1"></div>
-        <div class="indicator" data-bs-target="#projectCarousel" data-bs-slide-to="2"></div>
-        <div class="indicator" data-bs-target="#projectCarousel" data-bs-slide-to="3"></div>
-    </div>
-</div>
+    
 
         <!-- Mafaza Projects Section -->
         <h4 class="fw-bold mt-4"><i class="fa-solid fa-building"></i> MAFAZA PROJECTS</h4>
         <div class="row">
-            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <img src="{% static 'images/mimg1.jpg' %}" class="card-img-top" alt="New York">
-                    <div class="card-body">
-                        <h6 class="fw-bold">New York</h6>
-                        <p class="text-muted small">2,345 properties • 746 miles away</p>
+            {% for project in mafaza_projects %}
+                <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <img src="{{ project.image1.url }}" class="card-img-top" alt="{{ project.project_name }}">
+                        <div class="card-body">
+                            <h6 class="fw-bold">{{ project.project_name }}</h6>
+                            <p class="text-muted small">ROI: {{ project.min_roi }}% - {{ project.max_roi }}%</p>
+                        </div>
                     </div>
                 </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        <div class="row mt-4">
+            <div class="col-6">
+                <p>{{ mafaza_projects.paginator.count }} results</p>
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <img src="{% static 'images/mimg2.jpg' %}" class="card-img-top" alt="Maldives">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Maldives</h6>
-                        <p class="text-muted small">3,456 properties • 9,206 miles away</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <img src="{% static 'images/mimg3.jpg' %}" class="card-img-top" alt="Bhutan">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Bhutan</h6>
-                        <p class="text-muted small">4,567 properties • 8,189 miles away</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <img src="{% static 'images/mimg1.jpg' %}" class="card-img-top" alt="Amsterdam">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Amsterdam</h6>
-                        <p class="text-muted small">6,879 properties • 4,059 miles away</p>
-                    </div>
-                </div>
+            <div class="col-6">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end">
+                        {% if mafaza_projects.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ mafaza_projects.previous_page_number }}">&lt;</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">&lt;</span></li>
+                        {% endif %}
+        
+                        {% for num in mafaza_projects.paginator.page_range %}
+                            {% if num == mafaza_projects.number %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+        
+                        {% if mafaza_projects.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ mafaza_projects.next_page_number }}">&gt;</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">&gt;</span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
             </div>
         </div>
-
         
-        <div class="row mt-4">
-            <div class="col-6" >
-                <p>63 results</p>
-                </div>
-            <div class="col-6" >
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-                <li class="page-item disabled"><a class="page-link" href="#">&lt;</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                
-                <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-            </ul>
-        </nav>   </div></div>
-
-            </div>
             <script>
                 // JavaScript for Sidebar Toggle
         document.getElementById("toggleSidebar").addEventListener("click", function() {

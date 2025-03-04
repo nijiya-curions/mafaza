@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser,InvestmentProject,Transaction,UserProjectAssignment
+from .models import CustomUser,InvestmentProject,Transaction,UserProjectAssignment,UserDocument
 from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 from django.contrib.auth import get_user_model
@@ -35,8 +35,6 @@ class SignupForm(forms.ModelForm):
     
 
 
-from django import forms
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -50,16 +48,7 @@ class ForgotPasswordForm(forms.Form):
         return data
 
 
-
-
-
-# user update profile
-
-
 # update profile form
-from django import forms
-from django.contrib.auth import get_user_model
-
 
 class UserProfileUpdateForm(forms.ModelForm):
     password = forms.CharField(
@@ -133,7 +122,6 @@ class UserProjectAssignmentForm(forms.ModelForm):
         self.fields['return_period'].widget.attrs.update({'class': 'form-select'})
         
  
-from .models import UserDocument
 
 class UserDocumentForm(forms.ModelForm):
     class Meta:

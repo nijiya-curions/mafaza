@@ -220,8 +220,22 @@ def usertransaction(request):
 @never_cache
 @user_login_required
 def userprojects(request):
-    return render(request,'userprojects.html')
+    user = request.user  
 
+    assigned_projects = UserProjectAssignment.objects.filter(user=user).select_related("project")
+
+    mafaza_projects = InvestmentProject.objects.filter(is_active=True)
+
+    paginator = Paginator(mafaza_projects, 8) 
+    page_number = request.GET.get("page")
+    mafaza_page_obj = paginator.get_page(page_number)  
+
+    context = {
+        "assigned_projects": assigned_projects,
+        "mafaza_projects": mafaza_page_obj, 
+    }
+
+    return render(request, "userprojects.html", context)
 
 # admin dashbaord
 from django.db.models import Sum, Count, Q
