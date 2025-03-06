@@ -63,19 +63,22 @@ class UserProfileUpdateForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'address', 'country', 'password']
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'address', 'country']
 
     def save(self, commit=True):
         user = super().save(commit=False)
         new_password = self.cleaned_data.get('password')
 
-        if new_password:
-            user.set_password(new_password)  # Hash and set the password
+        if new_password:  
+            user.set_password(new_password)  # Set new password if entered
 
         if commit:
             user.save()
 
         return user
+
+
+
 
 
 # project form
