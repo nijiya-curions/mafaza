@@ -36,46 +36,36 @@
             <div class="sub-text">Welcome to PLAYCINE, where the silver screen comes alive, offering a captivating web app experience that fuels your love for movies.</div>
         </div>
         <div class="row justify-content-center">
+            {% if projects %}
             <section class="carousel-section">
                 <div class="swiper">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <img src="{% static 'images/mimg1.jpg' %}" alt="Project 1" class="project-image">
-                            <h3 class="project-title">Smart City Solutions</h3>
-                            <p class="project-description">Innovative urban development projects implementing smart technology.</p>
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="{% static 'images/mimg2.jpg' %}" alt="Project 2" class="project-image">
-                            <h3 class="project-title">Sustainable Architecture</h3>
-                            <p class="project-description">Eco-friendly building designs for a sustainable future.</p>
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="{% static 'images/mimg3.jpg' %}" alt="Project 3" class="project-image">
-                            <h3 class="project-title">Digital Infrastructure</h3>
-                            <p class="project-description">Next-generation digital solutions for modern businesses.</p>
-                        </div>
+                        {% for project in projects %}
+                            <div class="swiper-slide">
+                                <img src="{{ project.image1.url }}" alt="{{ project.project_name }}" class="project-image">
+                                <h3 class="project-title">{{ project.project_name }}</h3>
+                                <p class="project-description">{{ project.project_description }}</p>
+                            </div>
+                        {% endfor %}
+        
                         <!-- Duplicate slides for smooth loop -->
-                        <div class="swiper-slide">
-                            <img src="{% static 'images/mimg1.jpg' %}" alt="Project 1" class="project-image">
-                            <h3 class="project-title">Smart City Solutions</h3>
-                            <p class="project-description">Innovative urban development projects implementing smart technology.</p>
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="{% static 'images/mimg2.jpg' %}" alt="Project 2" class="project-image">
-                            <h3 class="project-title">Sustainable Architecture</h3>
-                            <p class="project-description">Eco-friendly building designs for a sustainable future.</p>
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="{% static 'images/mimg3.jpg' %}" alt="Project 3" class="project-image">
-                            <h3 class="project-title">Digital Infrastructure</h3>
-                            <p class="project-description">Next-generation digital solutions for modern businesses.</p>
-                        </div>
+                        {% for project in projects %}
+                            <div class="swiper-slide">
+                                <img src="{{ project.image1.url }}" alt="{{ project.project_name }}" class="project-image">
+                                <h3 class="project-title">{{ project.project_name }}</h3>
+                                <p class="project-description">{{ project.project_description }}</p>
+                            </div>
+                        {% endfor %}
                     </div>
+        
                     <div class="swiper-button-next"></div>
                     <div class="swiper-button-prev"></div>
                     <div class="swiper-pagination"></div>
                 </div>
             </section>
+        {% endif %}
+        
+
         </div>
     </div>
 

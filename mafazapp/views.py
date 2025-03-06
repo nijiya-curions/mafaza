@@ -17,10 +17,13 @@ from .forms import SignupForm,InvestmentProjectForm,UserTransactionForm,UserProf
 from .models import InvestmentProject,PasswordResetRequest,CustomUser,UserDocument,UserProjectAssignment,Transaction
 from django.utils.timezone import now
 
-
 def home(request):
-    return render(request,'home.html')
+    projects = InvestmentProject.objects.all()
 
+    context = {
+        "projects": projects, 
+    }
+    return render(request, "home.html", context)
 
 
 def signup(request):
