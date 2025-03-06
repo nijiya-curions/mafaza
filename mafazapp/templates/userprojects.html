@@ -104,15 +104,15 @@
         <h4 class="fw-bold"><i class="fa-solid fa-landmark"></i> INVESTED PROJECTS</h4>
         <div id="projectCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
-                {% for projects in assigned_projects|slice:":4" %}
+                {% for projects in assigned_projects|slice:":12" %}  {# Adjust slice as needed #}
                     {% if forloop.counter0|divisibleby:4 %}
                     <div class="carousel-item {% if forloop.first %}active{% endif %}">
                         <div class="row">
                     {% endif %}
                             <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
                                 <div class="card border-0 shadow-sm">
-                                    <img src="{{ projects.project.image1.url }}" class="card-img-top" alt="{{ projects.project.project_name }}">
-                                    <div class="card-body">
+                                    <img src="{{ projects.project.image1.url }}" class="card-img-top rounded" alt="{{ projects.project.project_name }}">
+                                    <div class="card-body text-center">
                                         <h6 class="fw-bold">{{ projects.project.project_name }}</h6>
                                         <p class="text-muted small">ROI: {{ projects.get_effective_return }}%</p>
                                     </div>
@@ -125,14 +125,23 @@
                 {% endfor %}
             </div>
     
-            <!-- Custom Round Indicators -->
+            <!-- Carousel Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#projectCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#projectCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            </button>
+    
+            <!-- Custom Indicators -->
             <div class="carousel-indicators">
-                {% for projects in assigned_projects|slice:":4" %}
-                    <div class="indicator {% if forloop.first %}active{% endif %}" data-bs-target="#projectCarousel" data-bs-slide-to="{{ forloop.counter0 }}"></div>
+                {% for i in assigned_projects|slice:":12"|slice:"0::4" %}
+                    <button type="button" data-bs-target="#projectCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}"></button>
                 {% endfor %}
             </div>
         </div>
-    </div>
+    
+    
     
 
         <!-- Mafaza Projects Section -->

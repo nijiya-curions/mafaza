@@ -111,7 +111,6 @@ def admin_required(user):
 # user dashboard
 @user_login_required
 @never_cache
-
 def userdashboard(request):
     user = request.user  
     form = UserProfileUpdateForm(instance=user)
@@ -144,11 +143,14 @@ def userdashboard(request):
     # **Calculations**
     total_investments = all_transactions.filter(transaction_type="investment", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
     total_withdrawals = all_transactions.filter(transaction_type="withdrawal", status="approved").aggregate(Sum("amount"))["amount__sum"] or 0
+
     user_projects = UserProjectAssignment.objects.filter(user=user)
+    total_projects = user_projects.count()  
+    
     total_roi_percentage = sum(assignment.roi or 0 for assignment in user_projects)
+
     total_returns = (total_roi_percentage / 100) * total_investments if total_investments > 0 else 0
     cash_circulation = total_investments - total_withdrawals
-    total_projects = InvestmentProject.objects.filter(transaction__user=user).distinct().count()
 
     # **Compute Returns & Running Balance**
     running_balance = 0  
@@ -158,7 +160,7 @@ def userdashboard(request):
             running_balance += transaction.amount
         elif transaction.transaction_type == "withdrawal":
             running_balance -= transaction.amount
-        transaction.balance = running_balance  # Assign balance
+        transaction.balance = running_balance  
 
     context = {
         "form": form,
@@ -166,10 +168,10 @@ def userdashboard(request):
         "total_returns": total_returns,
         "cash_circulation": cash_circulation,
         "total_roi": total_roi_percentage,
-        "total_projects": total_projects,
+        "total_projects": total_projects, 
         "total_withdrawals": total_withdrawals,
         "transactions": page_obj,  
-        "search_query": search_query,  # Pass search query to template
+        "search_query": search_query,  
     }
 
     return render(request, "userdashboard.html", context)
@@ -194,7 +196,9 @@ def usertransaction(request):
     else:
         form = UserTransactionForm()
 
-    projects = InvestmentProject.objects.all()  # Fetch available projects
+    # Fetch only assigned projects for the logged-in user
+    assigned_projects = UserProjectAssignment.objects.filter(user=request.user).select_related("project")
+
     transactions_list = Transaction.objects.filter(user=request.user).order_by('-date') 
     paginator = Paginator(transactions_list, 5)  
     page = request.GET.get("page")
@@ -208,11 +212,12 @@ def usertransaction(request):
 
     context = {
         "form": form,
-        "projects": projects,
+        "projects": [assignment.project for assignment in assigned_projects],  # Pass only assigned projects
         "transactions": transactions,
         "today_date": now().strftime("%d %b %Y"),
     }
     return render(request, "usertransaction.html", context)
+
 
 # admin side
 
@@ -418,24 +423,31 @@ def admintransaction(request):
     else:
         form = TransactionForm()
 
-    # Fetching projects
-    projects = InvestmentProject.objects.all()
+    # Get selected user ID from the request (if any)
+    selected_user_id = request.GET.get("selected_user")
 
-    # Get filter option from request
-    user_type = request.GET.get("user_type", "All")  # Default to "All"
+    if selected_user_id:
+        try:
+            selected_user = User.objects.get(id=selected_user_id)
+            assigned_projects = UserProjectAssignment.objects.filter(user=selected_user).select_related("project")
+            projects = [assignment.project for assignment in assigned_projects]
+        except User.DoesNotExist:
+            projects = InvestmentProject.objects.all()  # Fallback: all projects
+    else:
+        projects = InvestmentProject.objects.all()  # Default: all projects
 
-    # Base query for pending transactions
+    # Filtering transactions
+    user_type = request.GET.get("user_type", "All")
     transactions_query = Transaction.objects.filter(status="pending").order_by('-date')
 
-    # Apply filter
     if user_type == "Admin":
-        transactions_query = transactions_query.filter(user__is_staff=True)  # Filter admins
+        transactions_query = transactions_query.filter(user__is_staff=True)
     elif user_type == "User":
-        transactions_query = transactions_query.filter(user__is_staff=False)  # Filter normal users
+        transactions_query = transactions_query.filter(user__is_staff=False)
 
     # Pagination
     page = request.GET.get('page', 1)
-    paginator = Paginator(transactions_query, 10)  # Show 10 transactions per page
+    paginator = Paginator(transactions_query, 10)
 
     try:
         transactions = paginator.page(page)
@@ -448,9 +460,10 @@ def admintransaction(request):
         "form": form,
         "today_date": now().strftime("%d %b %Y"),
         "users": User.objects.all(),
-        "projects": projects,
-        "transactions": transactions,  # Use the paginated transactions
-        "user_type": user_type,  # Pass the selected filter to the template
+        "projects": projects,  # Pass the filtered projects
+        "transactions": transactions,
+        "user_type": user_type,
+        "selected_user_id": selected_user_id,  # Pass selected user to template
     }
 
     return render(request, "admintransaction.html", context)
