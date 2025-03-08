@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
@@ -311,7 +309,17 @@ def admindashboard(request):
 @never_cache
 def adminusers(request):
     User = get_user_model()
+    
+    selected_user_id = request.GET.get("selected_user")
+    selected_user = None
+    assigned_projects = []
 
+    if selected_user_id:
+        try:
+            selected_user = User.objects.get(id=selected_user_id)
+            assigned_projects = UserProjectAssignment.objects.filter(user=selected_user)
+        except User.DoesNotExist:
+            messages.error(request, "Selected user not found.")
     search_query = request.GET.get('search', '')
     user_type = request.GET.get('user_type', '')
     users = User.objects.exclude(is_superuser=True)
@@ -404,7 +412,8 @@ def adminusers(request):
         'user_type': user_type,
         'projects': projects,
         'form': form,
-
+'selected_user': selected_user,
+        'assigned_projects': assigned_projects,
     })
 
 
