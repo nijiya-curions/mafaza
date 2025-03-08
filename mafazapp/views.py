@@ -127,7 +127,7 @@ def userdashboard(request):
 
     # **Search Functionality**
     search_query = request.GET.get("search", "").strip()
-    all_transactions = Transaction.objects.filter(user=user).order_by("date")  
+    all_transactions = Transaction.objects.filter(user=user, status="approved").order_by("date")
 
     if search_query:
         all_transactions = all_transactions.filter(
