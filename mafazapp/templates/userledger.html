@@ -189,7 +189,7 @@
                                  <td>
                                     <!-- Trigger Modal for User Transactions -->
                                     <a href="{% url 'userledger' transaction.user.id %}">
-                                        VIEW RECEIPT
+                                        VIEW LEDGER
                                     </a>
                                 </td>
                         
@@ -265,15 +265,17 @@
                     {% endif %}
             
                     <!-- Export Buttons -->
-                    <div class="modal-buttons">
-                        <button class="btn btn-primary" onclick="exportLedgerPDF()">
-                            <i class="fas fa-download"></i> Export PDF
-                        </button>
-                        <button class="btn btn-success" onclick="exportLedgerExcel()">
-                            <i class="fas fa-file-excel"></i> Export Excel
-                        </button>
+                    <div class="modal-buttons mb-3">
+                        {% if selected_user %}
+                            <a href="{% url 'export_ledger_pdf' selected_user.id %}" class="btn csv-btn" style="color: #fff;">
+                                <i class="fas fa-download"></i> Export PDF
+                            </a>
+                            <a href="{% url 'export_ledger_excel' selected_user.id %}" class="btn csv-btn" style="color: #fff;">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </a>
+                        {% endif %}
                     </div>
-            
+                    
                     <div id="ledger-table-content">
                         <table class="table table-striped">
                             <thead class="table-dark">
@@ -281,8 +283,8 @@
                                     <th>#</th>
                                     <th>Date</th>
                                     <th>Narration</th>
-                                    <th>Debit (AED)</th>
-                                    <th>Credit (AED)</th>
+                                    <th>Withdrawal (AED)</th>
+                                    <th>Investment (AED)</th>
                                     <th>Balance (AED)</th>
                                 </tr>
                             </thead>
@@ -301,7 +303,6 @@
                         </table>
                     </div>
                 </div>
-            </div>
             {% endif %}
             
             
@@ -312,11 +313,6 @@
 }
 
 </script>
-
-
-
-
-
 
             <script>
                 // JavaScript for Sidebar Toggle

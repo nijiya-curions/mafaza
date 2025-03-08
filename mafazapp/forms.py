@@ -95,8 +95,6 @@ class InvestmentProjectForm(forms.ModelForm):
 
 
 class TransactionForm(forms.ModelForm):
-    User = get_user_model() 
-    
     class Meta:
         model = Transaction
         fields = ['user', 'amount', 'project', 'transaction_type', 'narration', 'receipt']
@@ -115,10 +113,12 @@ class UserTransactionForm(forms.ModelForm):
 
 
 class UserProjectAssignmentForm(forms.ModelForm):
+    username = forms.CharField(widget=forms.HiddenInput())
+
     class Meta:
         model = UserProjectAssignment
-        fields = ['user', 'project', 'roi', 'return_period']
-
+        fields = ['project', 'roi', 'return_period', 'username']
+        
     def __init__(self, *args, **kwargs):
         super(UserProjectAssignmentForm, self).__init__(*args, **kwargs)
         self.fields['roi'].widget.attrs.update({'placeholder': 'Enter ROI (optional)'})

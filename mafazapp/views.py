@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
@@ -305,21 +306,11 @@ def admindashboard(request):
 
 
 # admin users
-@user_passes_test(admin_required, login_url='home')
-@never_cache
+
+@user_passes_test(admin_required, login_url='login')
 def adminusers(request):
     User = get_user_model()
-    
-    selected_user_id = request.GET.get("selected_user")
-    selected_user = None
-    assigned_projects = []
 
-    if selected_user_id:
-        try:
-            selected_user = User.objects.get(id=selected_user_id)
-            assigned_projects = UserProjectAssignment.objects.filter(user=selected_user)
-        except User.DoesNotExist:
-            messages.error(request, "Selected user not found.")
     search_query = request.GET.get('search', '')
     user_type = request.GET.get('user_type', '')
     users = User.objects.exclude(is_superuser=True)
@@ -412,8 +403,7 @@ def adminusers(request):
         'user_type': user_type,
         'projects': projects,
         'form': form,
-'selected_user': selected_user,
-        'assigned_projects': assigned_projects,
+
     })
 
 
@@ -424,29 +414,42 @@ def admin_required(user):
 
 @user_passes_test(admin_required, login_url='login')
 def admintransaction(request):
+    selected_user_id = request.POST.get("user") or request.GET.get("user")
+
     if request.method == "POST":
         form = TransactionForm(request.POST, request.FILES)
+        
         if form.is_valid():
-            form.save()
+            transaction = form.save(commit=False)
+            
+            # Ensure user is assigned to the transaction
+            if selected_user_id:
+                try:
+                    transaction.user = User.objects.get(id=selected_user_id)
+                except User.DoesNotExist:
+                    messages.error(request, "Invalid user selected.")
+                    return redirect("admintransaction")
+
+            transaction.save()
             messages.success(request, "Transaction added successfully")
             return redirect("admintransaction")
         else:
             messages.error(request, "Error adding transaction")
+            print(form.errors)  # Debugging: Print form errors
+
     else:
         form = TransactionForm()
 
-    # Get selected user ID from the request (if any)
-    selected_user_id = request.GET.get("selected_user")
-
+    # Fetch projects assigned to the selected user
     if selected_user_id:
         try:
             selected_user = User.objects.get(id=selected_user_id)
             assigned_projects = UserProjectAssignment.objects.filter(user=selected_user).select_related("project")
             projects = [assignment.project for assignment in assigned_projects]
         except User.DoesNotExist:
-            projects = InvestmentProject.objects.all()  # Fallback: all projects
+            projects = InvestmentProject.objects.all()  # Fallback to all projects
     else:
-        projects = InvestmentProject.objects.all()  # Default: all projects
+        projects = InvestmentProject.objects.all()
 
     # Filtering transactions
     user_type = request.GET.get("user_type", "All")
@@ -472,10 +475,10 @@ def admintransaction(request):
         "form": form,
         "today_date": now().strftime("%d %b %Y"),
         "users": User.objects.all(),
-        "projects": projects,  # Pass the filtered projects
+        "projects": projects,
         "transactions": transactions,
         "user_type": user_type,
-        "selected_user_id": selected_user_id,  # Pass selected user to template
+        "selected_user_id": selected_user_id,
     }
 
     return render(request, "admintransaction.html", context)
@@ -651,6 +654,7 @@ def edit_project(request, project_id):
 
     return render(request, 'edit_project.html', {'form': form, 'project': project})
 
+
 # forgot password
 
 User = get_user_model()
@@ -705,7 +709,7 @@ def admin_delete_document(request, document_id):
 
 
 # document section for users
-
+@user_login_required
 def document_list(request):
     """List all documents and handle document uploads and edits in the same view."""
     documents = UserDocument.objects.filter(user=request.user)
@@ -789,18 +793,17 @@ def assign_project(request):
 
 @user_passes_test(admin_required, login_url='home')
 @never_cache
-def assigned_projects(request): 
+def assigned_projects(request):
     assigned_projects = UserProjectAssignment.objects.filter(user=request.user)
-    projects = InvestmentProject.objects.all()  # Assuming you want to list all projects
-      
+    projects = InvestmentProject.objects.filter(assigned_users__user=request.user)  # Fetch only assigned projects
+
     form = UserProjectAssignmentForm()  # Initialize the form
 
     return render(request, 'adminusers.html', {
         'assigned_projects': assigned_projects,
         'projects': projects,
         'form': form
-    }) 
-                       
+    })    
 
 # view for download admindashboard
 
@@ -975,3 +978,86 @@ def download_transactions_pdf(request):
     # **Send as File Download**
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=True, filename="transactions.pdf")
+
+
+# userledger
+
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+import openpyxl
+
+
+
+def export_ledger_pdf(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    transactions = Transaction.objects.filter(user=user).order_by("date")
+
+    # Create a file-like buffer to receive PDF data.
+    buffer = BytesIO()
+
+    # Create the PDF object, using the buffer as its "file."
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # Draw content
+    p.drawString(100, 750, f"Ledger for {user.username}")
+    p.drawString(100, 735, "----------------------------------------")
+
+    y = 700
+    running_balance = 0
+    for transaction in transactions:
+        if transaction.transaction_type == "investment":
+            running_balance += transaction.amount
+        elif transaction.transaction_type == "withdrawal":
+            running_balance -= transaction.amount
+        p.drawString(100, y, f"Date: {transaction.date}, Narration: {transaction.narration}, Withdrawal: {transaction.amount if transaction.transaction_type == 'withdrawal' else '-'}, Investment: {transaction.amount if transaction.transaction_type == 'investment' else '-'}, Balance: {running_balance}")
+        y -= 15
+
+    # Close the PDF object cleanly.
+    p.showPage()
+    p.save()
+
+    # Get the value of the buffer and write it to the response.
+    pdf = buffer.getvalue()
+    buffer.close()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=ledger_{user.username}.pdf'
+    return response
+
+def export_ledger_excel(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    transactions = Transaction.objects.filter(user=user).order_by("date")
+
+    # Create a workbook and add a worksheet.
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Ledger"
+
+    # Add headers
+    headers = ["#", "Date", "Narration", "Withdrawal (AED)", "Investment (AED)", "Balance (AED)"]
+    ws.append(headers)
+
+    # Add data
+    running_balance = 0
+    for idx, transaction in enumerate(transactions, start=1):
+        if transaction.transaction_type == "investment":
+            running_balance += transaction.amount
+        elif transaction.transaction_type == "withdrawal":
+            running_balance -= transaction.amount
+        row = [
+            idx,
+            transaction.date,
+            transaction.narration,
+            transaction.amount if transaction.transaction_type == 'withdrawal' else '-',
+            transaction.amount if transaction.transaction_type == 'investment' else '-',
+            running_balance
+        ]
+        ws.append(row)
+
+    # Create a response object and save the workbook to it
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=ledger_{user.username}.xlsx'
+    wb.save(response)
+    return response

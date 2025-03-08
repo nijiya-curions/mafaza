@@ -172,7 +172,7 @@
                 </div>
                 <!-- Buttons and Active Switch -->
                 <div class="col-12 mt-3 d-flex flex-column flex-md-row align-items-center justify-content-between">
-                    <button class="btn btn-warning btn-sm w-10 w-md-auto mb-2 mb-md-0"
+                    <button class="btn csv-btn btn-sm w-10 w-md-auto mb-2 mb-md-0"
                     data-bs-toggle="modal"
                     data-bs-target="#editProjectModal"
                     data-project-id="{{ project.id }}"
@@ -180,7 +180,8 @@
                     data-total-investment="{{ project.total_investment }}"
                     data-min-roi="{{ project.min_roi }}"
                     data-max-roi="{{ project.max_roi }}"
-                    data-project-description="{{ project.project_description }}">
+                    data-project-description="{{ project.project_description }}"  style="color: aliceblue;"
+                    >
                 <i class="fas fa-edit"></i> EDIT
             </button>
             
@@ -247,7 +248,7 @@
                     </div>
                     <br>
                     <div class="text-end">
-                        <button type="submit" class="btn csv-btn px-4">SUBMIT</button>
+                        <button type="submit" class="btn csv-btn px-4" style="color: aliceblue;">SUBMIT</button>
                     </div>
                 </form>
             </div>

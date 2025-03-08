@@ -82,84 +82,91 @@
                     <h5 class="fw-bold text-uppercase"><i class="fas fa-file-alt"></i>  Add Transactions</h5>
 
                   
-                        <form method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            
-                            <div class="row">
-                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                    <label>Date</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                        <input type="text" class="form-control" value="{{ today_date }}" readonly>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                    <label>User</label>
-                                    <select name="selected_user" class="form-control" onchange="this.form.submit()">
-                                        <option value="">Select User</option>
-                                        {% for user in users %}
-                                            <option value="{{ user.id }}" {% if selected_user_id == user.id|stringformat:"s" %}selected{% endif %}>
-                                                {{ user.username }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                    <label>Amount</label>
-                                    <input type="text" name="amount" class="form-control" placeholder="Input text" value="{{ form.amount.value|default:'' }}">
-                                </div>
-                                <div class="col-lg-3 col-md-6 col-sm-12">
-                                    <label>Project</label>
-                                    <select name="project" class="form-control">
-                                        {% for project in projects %}
-                                            <option value="{{ project.id }}">{{ project.project_name }}</option>
-                                        {% empty %}
-                                            <option disabled>No assigned projects available</option>
-                                        {% endfor %}
-                                    </select>
-                                    
-                                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                       
+                    
+                        <div class="row">
+                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                <label>Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="text" class="form-control" value="{{ today_date }}" readonly>
                                 </div>
                             </div>
                         
-                            <br>
-                        
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                    <label>Transaction Type</label>
-                                    <select name="transaction_type" class="form-control">
-                                        {% for type, label in form.transaction_type.field.choices %}
-                                            <option value="{{ type }}" {% if form.transaction_type.value == type %}selected{% endif %}>
-                                                {{ label }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-12">
-                                    <label>Narration</label>
-                                    <input type="text" name="narration" class="form-control" placeholder="Input text" value="{{ form.narration.value|default:'' }}">
-                                </div>
+                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                <label>User</label>
+                                <select name="user" class="form-control" required onchange="this.form.submit()">
+                                    <option value="">Select User</option>
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}" {% if selected_user_id == user.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ user.username }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         
-                            <br>
+                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                <label>Amount</label>
+                                <input type="text" name="amount" class="form-control" placeholder="Enter Amount" value="{{ form.amount.value|default:'' }}" required>
+                            </div>
                         
-                            <div class="row">
-                                <div class="col-md-6 col-sm-12">
-                                    <label>Upload Receipt</label>
-                                    <div class="upload-box" onclick="document.getElementById('receiptUpload').click()">
-                                        <p >Drop files here</p>
-                                        <small>Supported format: PNG, JPG</small>
-                                        <input type="file" name="receipt" id="receiptUpload" class="d-none" accept="image/png, image/jpeg">
-                                    </div>
+                            <div class="col-lg-3 col-md-6 col-sm-12">
+                                <label>Project</label>
+                                <select name="project" class="form-control" required>
+                                    <option value="">Select Project</option>
+                                    {% for project in projects %}
+                                        <option value="{{ project.id }}" {% if form.project.value == project.id %}selected{% endif %}>
+                                            {{ project.project_name }}
+                                        </option>
+                                    {% empty %}
+                                        <option disabled>No assigned projects available</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    
+                        <br>
+                    
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <label>Transaction Type</label>
+                                <select name="transaction_type" class="form-control">
+                                    {% for type, label in form.transaction_type.field.choices %}
+                                        <option value="{{ type }}" {% if form.transaction_type.value == type %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                <label>Narration</label>
+                                <input type="text" name="narration" class="form-control" placeholder="Input text" value="{{ form.narration.value|default:'' }}">
+                            </div>
+                        </div>
+                    
+                        <br>
+                    
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12">
+                                <label>Upload Receipt</label>
+                                <div class="upload-box" onclick="document.getElementById('receiptUpload').click()">
+                                    <p>Drop files here</p>
+                                    <small>Supported format: PNG, JPG</small>
+                                    <input type="file" name="receipt" id="receiptUpload" class="d-none" accept="image/png, image/jpeg">
                                 </div>
                             </div>
-                        
-                            <br>
-                        
-                            <div class="text-end transactionbtn">
-                                <button type="submit" class="btn csv-btn px-4">SUBMIT</button>
-                            </div>
-                        </form>        
+                        </div>
+                    
+                        <br>
+                    
+                        <div class="text-end transactionbtn">
+                            <button type="submit" class="btn csv-btn px-4">SUBMIT</button>
+                        </div>
+                    </form>
+                    
                           <br>
             
 

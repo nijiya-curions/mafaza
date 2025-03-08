@@ -21,10 +21,13 @@ urlpatterns = [
     path('admin/transactions/reject/<int:transaction_id>/', views.reject_transaction, name='reject_transaction'),
     path('userledger/', views.userledger, name='userledger'),
    path('userledger/<uuid:user_id>/', views.userledger, name='userledger'),
+    path('export_ledger_pdf/<uuid:user_id>/', views.export_ledger_pdf, name='export_ledger_pdf'),
+    path('export_ledger_excel/<uuid:user_id>/', views.export_ledger_excel, name='export_ledger_excel'),
+
 
     path('adminprojects/', views.adminprojects, name='adminprojects'),
     path('edit_project/<int:project_id>/', views.edit_project, name='edit_project'),
-
+   
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('documents/', views.document_list, name='document_list'),
     path('delete-document/<int:document_id>/', views.delete_document, name='delete_document'),
@@ -41,5 +44,8 @@ urlpatterns = [
     path("export/pdf/", views.export_transactions_pdf, name="export_pdf"),
     path('toggle_project_status/<int:project_id>/', views.toggle_project_status, name='toggle_project_status'),
     path("download-pdf/", views.download_transactions_pdf, name="download_transactions_pdf"),
+
+
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
